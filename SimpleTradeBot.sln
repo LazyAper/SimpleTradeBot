@@ -5,7 +5,7 @@ VisualStudioVersion = 17.6.33723.286
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleTradeBot", "SimpleTradeBot\SimpleTradeBot.csproj", "{509E4E30-F105-428B-A21A-7E2200674A97}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleTradeBotWeb", "SimpleTradeBotWeb\SimpleTradeBotWeb.csproj", "{2B142D94-76A6-4D26-9FD4-F1D39454AB0A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleTradeBotAsp", "SimpleTradeBotAsp\SimpleTradeBotAsp.csproj", "{43BA4965-2F92-4C71-B651-D0312180A52C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,10 @@ Global
 		{509E4E30-F105-428B-A21A-7E2200674A97}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{509E4E30-F105-428B-A21A-7E2200674A97}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{509E4E30-F105-428B-A21A-7E2200674A97}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2B142D94-76A6-4D26-9FD4-F1D39454AB0A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2B142D94-76A6-4D26-9FD4-F1D39454AB0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2B142D94-76A6-4D26-9FD4-F1D39454AB0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2B142D94-76A6-4D26-9FD4-F1D39454AB0A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{43BA4965-2F92-4C71-B651-D0312180A52C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{43BA4965-2F92-4C71-B651-D0312180A52C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{43BA4965-2F92-4C71-B651-D0312180A52C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{43BA4965-2F92-4C71-B651-D0312180A52C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
