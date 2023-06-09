@@ -1,0 +1,10 @@
+﻿@page
+@model PrivacyModel
+@{
+    ViewData["Title"] = "Лог работы";
+    string readText = System.IO.File.ReadAllText("SimpleTradeBot.txt");
+
+}
+<h1>@ViewData["Title"]</h1>
+
+@Html.Raw(readText.Replace("\r\n", "<br />"))
