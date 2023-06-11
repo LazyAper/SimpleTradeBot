@@ -11,20 +11,23 @@ using TicTacTec.TA.Library;
 
 namespace SimpleTradeBot
 {
-    class TradeBot {
-        public string TradePairBase = "AST";
+    class TradeBot
+    {
+        public string TradePairBase = "AMB";
         public string TradePairQuote = "USDT";
-        public string TradePairSymbol = "ASTUSDT";
+        public string TradePairSymbol = "AMBUSDT";
         public int RsiPeriod = 7;
         public decimal OrderSizeQuote = 11;
-        public int RsiTreshold = 30;
+        public int RsiTreshold = 70;
         public double PercentTakeProfit = 1.5;
         public double PercentStopLoss = 0.5;
         public BinanceClient Client;
-        public int PricePrecision = 4;
+        public int PricePrecision = 5;
+        public int basePrecision = 0;
         public int quotePrecision = 0;
         public string LogFile = "SimpleTradeBot.txt";
         public bool OnlyOneSell = true; // не более одной покупки подряд
+        public string direction = "short";
 
         public TradeBot()
         {
@@ -40,41 +43,184 @@ namespace SimpleTradeBot
             File.AppendAllText(LogFile, text + Environment.NewLine);
         }
 
-        //шаг торговли, покупает если надо и оставляет ордер на продажу
+        //шаг торговли шорт или лонг
         public void TradeStep()
         {
-            bool sos = GetSellOrderStatus();
-            double prevRsi;
-            double cRsi = GetCurrentAndPreviousRSIValue(out prevRsi);
-            decimal quoteBlance = GetBalance(TradePairQuote);
+            if (direction == "short")
+                TradeStepShort();
+            else if (direction == "long")
+                TradeStepLong();
+        }
+
+        //шаг шорт торговли, продает, если надо и оставляет ордер на покупку
+        public void TradeStepShort()
+        {
+            bool bos = GetShortBuyOrderStatus();
+
+            //получаем историю цен
+            List<Kline> klines = null;
+            while (klines == null)
+                klines = GetLastKLines(RsiPeriod * 6);
+
+            //вычисляем массив rsi
+            double[] rsi = CalculateRSISeries(klines);
+            //предыдущее значение rsi
+            double prevRsi = rsi[rsi.Length - 2];
+            //текущее значение rsi
+            double cRsi = rsi[rsi.Length - 1];
+
+            decimal quoteBlance = GetBalanceMargin(TradePairQuote);
+
             DateTime dt = DateTime.Now;
 
-            //если нет ордера на продажу и rsi меньше порога и есть доллары на покупку, то покупаем и продаем
-            if (sos == false && cRsi <= RsiTreshold && quoteBlance > OrderSizeQuote) {
-                
-                //размещаем ордер на продажу только если предыдущее значение было выше порога
-                if (OnlyOneSell && prevRsi > RsiTreshold)
-                    PlaceBuyOrder();
-                else if (!OnlyOneSell)
-                    PlaceBuyOrder();
-                else
-                    return;
+            //если нет ордера на покупку и rsi больше порога и есть доллары на покупку, то продаем и покупаем
+            if (bos == false && cRsi >= RsiTreshold)
+            {
+                decimal quantity = 0;
 
-                PlaceSellOrder();
+                //размещаем ордер на покупку только если предыдущее значение было ниже порога
+                if (OnlyOneSell && prevRsi < RsiTreshold && quoteBlance > OrderSizeQuote)
+                    PlaceShortSellOrder();
+                else if (!OnlyOneSell)
+                    PlaceShortSellOrder();
+                else
+                {
+                    WriteToLog(dt.ToString() +
+                        " Ордер на продажу не размещен (защита от нескольких сделок подряд). Пара " + TradePairSymbol + "(шорт) RSI =" + cRsi + ". Баланс=" + quoteBlance);
+
+                    return;
+                }
+
+                PlaceShortBuyOrder();
 
                 WriteToLog(dt.ToString() +
-                    (" Купили и разместили новый ордер. ") + "RSI =" + cRsi + ". Баланс=" + quoteBlance);
+                    " Продали и разместили новый ордер на покупку. Пара " + TradePairSymbol + "(шорт) RSI =" + cRsi + ". Баланс=" + quoteBlance);
             }
             else
             {
-                WriteToLog(dt.ToString()+
-                    (sos ? " Ордер на продажу уже выставлен. " : " Ордер на продажу не выставлен. ") + "RSI ="+cRsi+". Баланс="+quoteBlance);
+                WriteToLog(dt.ToString() +
+                    (bos ? " Ордер на покупку уже выставлен. " : " Ордер на покупку не выставлен. ") + "Пара " + TradePairSymbol + "(шорт). RSI =" + cRsi + ". Баланс=" + quoteBlance);
+            }
+
+        }
+
+
+        //возвращает true если ордер на продажу всё еще размещен и не выполнен и не отменен
+        public bool GetShortBuyOrderStatus()
+        {
+            var sellOrder = Client.SpotApi.Trading.GetMarginOcoOrderAsync(null, false, null, TradePairSymbol + "_oco_buy");
+            sellOrder.Wait();
+
+            if (sellOrder.Result.Data != null)
+                return (sellOrder.Result.Data.ListOrderStatus == ListOrderStatus.Executing);
+            else
+                return false;
+        }
+
+        //размещает oco ордер на маржинальную покупку
+        public void PlaceShortBuyOrder()
+        {
+            double tpCoef = (100 - PercentTakeProfit) / 100;
+            double slCoef = (100 + PercentStopLoss) / 100;
+
+            List<Kline> priceList = GetLastKLines(1);
+            decimal price = (decimal)priceList[0].ClosePrice;
+
+            decimal tpPrice = (decimal)Math.Round((double)price * tpCoef, PricePrecision);
+            decimal slPrice = (decimal)Math.Round((double)price * slCoef, PricePrecision);
+
+            decimal quantity = GetBalanceMarginBorrowed(TradePairBase);
+
+            var sellOrder = Client.SpotApi.Trading.PlaceMarginOCOOrderAsync(
+                TradePairSymbol, OrderSide.Buy, tpPrice, slPrice, quantity, slPrice, TimeInForce.GoodTillCanceled, null, null, SideEffectType.AutoRepay, null, TradePairSymbol+"_oco_buy");
+                
+            sellOrder.Wait();
+        }
+
+        //продает TradePairSymbol на OrderSizeQuote долларов. возвращает количество проданных монет
+        public void PlaceShortSellOrder()
+        {
+            List<Kline> priceList = GetLastKLines(1);
+            decimal price = (decimal)priceList[0].ClosePrice;
+            decimal amount = (decimal)Math.Round((double)OrderSizeQuote / (double)price, basePrecision);
+
+            var sellOrder = Client.SpotApi.Trading.PlaceMarginOrderAsync(TradePairSymbol, OrderSide.Sell,
+                SpotOrderType.Market, amount, null, TradePairSymbol + "_sell_market", null, null, null, null, SideEffectType.MarginBuy);
+
+            sellOrder.Wait();
+
+        }
+
+        //получает маржинальный доуступный баланс заданной валюты
+        public decimal GetBalanceMargin(string currency)
+        {
+            var balances = Client.SpotApi.Account.GetMarginAccountInfoAsync();
+            balances.Wait();
+
+            return (decimal)balances.Result.Data.Balances.First(x => x.Asset == currency).Available;
+        }
+
+        //получает маржинальный займный баланс
+        public decimal GetBalanceMarginBorrowed(string currency)
+        {
+            var balances = Client.SpotApi.Account.GetMarginAccountInfoAsync();
+            balances.Wait();
+
+            return Math.Round((decimal)balances.Result.Data.Balances.First(x => x.Asset == currency).Borrowed, basePrecision);
+        }
+
+        //шаг лонг торговли, покупает если надо и оставляет ордер на продажу
+        public void TradeStepLong()
+        {
+            bool sos = GetLongSellOrderStatus();
+
+            //получаем историю цен
+            List<Kline> klines = null;
+            while (klines == null)
+                klines = GetLastKLines(RsiPeriod * 6);
+
+            //вычисляем массив rsi
+            double[] rsi = CalculateRSISeries(klines);
+            //предыдущее значение rsi
+            double prevRsi = rsi[rsi.Length - 2];
+            //текущее значение rsi
+            double cRsi = rsi[rsi.Length - 1];
+
+            decimal quoteBlance = GetBalanceSpot(TradePairQuote);
+
+            DateTime dt = DateTime.Now;
+
+            //если нет ордера на продажу и rsi меньше порога и есть доллары на покупку, то покупаем и продаем
+            if (sos == false && cRsi <= RsiTreshold && quoteBlance > OrderSizeQuote)
+            {
+
+                //размещаем ордер на продажу только если предыдущее значение было выше порога
+                if (OnlyOneSell && prevRsi > RsiTreshold)
+                    PlaceLongBuyOrder();
+                else if (!OnlyOneSell)
+                    PlaceLongBuyOrder();
+                else
+                {
+                    WriteToLog(dt.ToString() +
+                       " Ордер не размещен (защита от нескольких сделок подряд). Пара " + TradePairSymbol + " RSI =" + cRsi + ". Баланс=" + quoteBlance);
+                    return;
+                }
+
+                PlaceLongSellOrder();
+
+                WriteToLog(dt.ToString() +
+                    " Купили и разместили новый ордер. Пара " + TradePairSymbol + " RSI =" + cRsi + ". Баланс=" + quoteBlance);
+            }
+            else
+            {
+                WriteToLog(dt.ToString() +
+                    (sos ? " Ордер на продажу уже выставлен. " : " Ордер на продажу не выставлен. ") + "Пара " + TradePairSymbol + ". RSI =" + cRsi + ". Баланс=" + quoteBlance);
             }
 
         }
 
         //возвращает true если ордер на продажу всё еще размещен и не выполнен и не отменен
-        public bool GetSellOrderStatus()
+        public bool GetLongSellOrderStatus()
         {
             var sellOrder = Client.SpotApi.Trading.GetOcoOrderAsync(null, TradePairSymbol + "_oco_sell", null);
             sellOrder.Wait();
@@ -86,7 +232,7 @@ namespace SimpleTradeBot
         }
 
         //размещает oco ордер на продажу
-        public void PlaceSellOrder()
+        public void PlaceLongSellOrder()
         {
             double tpCoef = (100 + PercentTakeProfit) / 100;
             double slCoef = (100 - PercentStopLoss) / 100;
@@ -95,18 +241,18 @@ namespace SimpleTradeBot
             decimal price = (decimal)priceList[0].ClosePrice;
             decimal tpPrice = (decimal)Math.Round((double)price * tpCoef, PricePrecision);
             decimal slPrice = (decimal)Math.Round((double)price * slCoef, PricePrecision);
-            decimal amount = GetBalance(TradePairBase);
+            decimal amount = GetBalanceSpot(TradePairBase);
 
 
             var sellOrder = Client.SpotApi.Trading.PlaceOcoOrderAsync(TradePairSymbol, OrderSide.Sell, amount,
                 tpPrice, slPrice, slPrice,
-                TradePairSymbol+"_oco_sell", null,null, null,
+                TradePairSymbol + "_oco_sell", null, null, null,
                 null, TimeInForce.GoodTillCanceled, null, null, null, null, null, null, null);
             sellOrder.Wait();
         }
 
         //получает баланс заданной валюты
-        public decimal GetBalance(string currency)
+        public decimal GetBalanceSpot(string currency)
         {
             var balances = Client.SpotApi.CommonSpotClient.GetBalancesAsync(null);
             balances.Wait();
@@ -115,24 +261,13 @@ namespace SimpleTradeBot
         }
 
         //покупает TradePairSymbol на OrderSizeUsdt долларов
-        public void PlaceBuyOrder()
+        public void PlaceLongBuyOrder()
         {
             var buyOrder = Client.SpotApi.Trading.PlaceOrderAsync(TradePairSymbol,
                 OrderSide.Buy, SpotOrderType.Market,
-                null, OrderSizeQuote, TradePairSymbol+"_buy_market", null, null, null, null, null, null, null, null, null, null);
+                null, OrderSizeQuote, TradePairSymbol + "_buy_market", null, null, null, null, null, null, null, null, null, null);
             buyOrder.Wait();
         }
-
-        //возвращает текущее значение rsi
-        public double GetCurrentAndPreviousRSIValue(out double previousValue)
-        {
-            var klines = GetLastKLines(RsiPeriod * 6);
-            double[] rsi = CalculateRSISeries(klines);
-            previousValue= rsi[rsi.Length - 2];
-
-            return rsi[rsi.Length-1];
-        }
-
 
         //возвращает последние amount свечей цен
         public List<Kline> GetLastKLines(int amount)

@@ -11,7 +11,6 @@ namespace SimpleTradeBotAsp.Jobs
             IScheduler scheduler = await StdSchedulerFactory.GetDefaultScheduler();
             
 
-
             IJobDetail job = JobBuilder.Create<TradeBotStarter>().Build();
 
             ITrigger trigger = TriggerBuilder.Create()  // создаем триггер
