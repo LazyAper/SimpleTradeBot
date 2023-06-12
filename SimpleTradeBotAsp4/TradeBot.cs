@@ -5,38 +5,29 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using TicTacTec.TA.Library;
 
-namespace SimpleTradeBotAsp
+namespace SimpleTradeBotAsp4
 {
     class TradeBot
     {
-        public string TradePairBase = "AMB";
+        public string TradePairBase = "PEPE";
         public string TradePairQuote = "USDT";
-        public string TradePairSymbol = "AMBUSDT";
+        public string TradePairSymbol = "PEPEUSDT";
         public int RsiPeriod = 7;
         public decimal OrderSizeQuote = 11;
         public int RsiTreshold = 50;
         public double PercentTakeProfit = 1.5;
         public double PercentStopLoss = 0.5;
         public BinanceClient Client;
-        public int PricePrecision = 5;
+        public int PricePrecision = 8;
         public int basePrecision = 0;
         public int quotePrecision = 0;
         public string LogFile = "SimpleTradeBot.txt";
         public bool OnlyOneSell = false; // не более одной покупки подряд
         public string direction = "short";
-
-        //текущие значения работы бота
-        private decimal BaseBalance = 0;
-        private decimal QuoteBalance = 0;
-        private decimal CurrentPrice = 0;
-        private double CurrentRsi = 0;
-        private decimal TpPrice = 0;
-        private decimal SlPrice = 0;
 
         public TradeBot()
         {
@@ -46,16 +37,8 @@ namespace SimpleTradeBotAsp
                 "tudhsqIz826OAOuaD1dx0ER1cGnrDNzPeKq2pQYIIlVirbbLPipcHrLeZolhTmpN"));
         }
 
-        private void WriteToLog(string msg)
+        private void WriteToLog(string text)
         {
-            string text = DateTime.Now.ToString() + " " + TradePairSymbol + " "
-                + direction + ". "
-                + msg +
-                ". Текущая цена: " + Math.Round(CurrentPrice, PricePrecision) +
-                ". RSI: " + Math.Round(CurrentRsi, 1) +
-                ". Баланс: " + Math.Round(BaseBalance, 2) + " "+TradePairBase + ", " +
-                Math.Round(QuoteBalance, 2) + " "+TradePairQuote;
-
             Console.WriteLine(text);
             File.AppendAllText(LogFile, text + Environment.NewLine);
         }
@@ -79,42 +62,44 @@ namespace SimpleTradeBotAsp
             while (klines == null)
                 klines = GetLastKLines(RsiPeriod * 6);
 
-            CurrentPrice = (decimal)klines[klines.Count - 1].ClosePrice;
-
             //вычисляем массив rsi
             double[] rsi = CalculateRSISeries(klines);
             //предыдущее значение rsi
             double prevRsi = rsi[rsi.Length - 2];
             //текущее значение rsi
-            CurrentRsi = rsi[rsi.Length - 1];
+            double cRsi = rsi[rsi.Length - 1];
 
-            QuoteBalance = GetBalanceMargin(TradePairQuote);
-            BaseBalance = GetBalanceMarginBorrowed(TradePairBase);
+            decimal quoteBlance = GetBalanceMargin(TradePairQuote);
+
+            DateTime dt = DateTime.Now;
 
             //если нет ордера на покупку и rsi больше порога и есть доллары на покупку, то продаем и покупаем
-            if (bos == false && CurrentRsi >= RsiTreshold)
+            if (bos == false && cRsi >= RsiTreshold)
             {
+                decimal quantity = 0;
+
                 //размещаем ордер на покупку только если предыдущее значение было ниже порога
-                if (OnlyOneSell && prevRsi < RsiTreshold && QuoteBalance >= OrderSizeQuote)
+                if (OnlyOneSell && prevRsi < RsiTreshold && quoteBlance >= OrderSizeQuote)
                     PlaceShortSellOrder();
                 else if (!OnlyOneSell)
                     PlaceShortSellOrder();
                 else
                 {
-                    WriteToLog("Ордер на продажу не размещен (защита от сделок подряд)");
+                    WriteToLog(dt.ToString() +
+                        " Ордер на продажу не размещен (защита от нескольких сделок подряд). Пара " + TradePairSymbol + "(шорт) RSI =" + cRsi + ". Баланс=" + quoteBlance);
 
                     return;
                 }
 
-                BaseBalance = GetBalanceMarginBorrowed(TradePairBase);
                 PlaceShortBuyOrder();
 
-                WriteToLog("Продали и разместили новый ордер на покупку. Цена takeProfit: "+TpPrice+". Цена stopLoss: "+ SlPrice);
+                WriteToLog(dt.ToString() +
+                    " Продали и разместили новый ордер на покупку. Пара " + TradePairSymbol + "(шорт) RSI =" + cRsi + ". Баланс=" + quoteBlance);
             }
             else
             {
-                WriteToLog(
-                    (bos ? "Ордер на покупку уже выставлен" : "Ордер на покупку не выставлен"));
+                WriteToLog(dt.ToString() +
+                    (bos ? " Ордер на покупку уже выставлен. " : " Ордер на покупку не выставлен. ") + "Пара " + TradePairSymbol + "(шорт). RSI =" + cRsi + ". Баланс=" + quoteBlance);
             }
 
         }
@@ -138,19 +123,26 @@ namespace SimpleTradeBotAsp
             double tpCoef = (100 - PercentTakeProfit) / 100;
             double slCoef = (100 + PercentStopLoss) / 100;
 
-            TpPrice = (decimal)Math.Round((double)CurrentPrice * tpCoef, PricePrecision);
-            SlPrice = (decimal)Math.Round((double)CurrentPrice * slCoef, PricePrecision);
+            List<Kline> priceList = GetLastKLines(1);
+            decimal price = (decimal)priceList[0].ClosePrice;
 
-            var buyOrder = Client.SpotApi.Trading.PlaceMarginOCOOrderAsync(
-                TradePairSymbol, OrderSide.Buy, TpPrice, SlPrice, BaseBalance, SlPrice, TimeInForce.GoodTillCanceled, null, null, SideEffectType.AutoRepay, null, TradePairSymbol+"_oco_buy");
+            decimal tpPrice = (decimal)Math.Round((double)price * tpCoef, PricePrecision);
+            decimal slPrice = (decimal)Math.Round((double)price * slCoef, PricePrecision);
+
+            decimal quantity = GetBalanceMarginBorrowed(TradePairBase);
+
+            var sellOrder = Client.SpotApi.Trading.PlaceMarginOCOOrderAsync(
+                TradePairSymbol, OrderSide.Buy, tpPrice, slPrice, quantity, slPrice, TimeInForce.GoodTillCanceled, null, null, SideEffectType.AutoRepay, null, TradePairSymbol+"_oco_buy");
                 
-            buyOrder.Wait();
+            sellOrder.Wait();
         }
 
         //продает TradePairSymbol на OrderSizeQuote долларов. возвращает количество проданных монет
         public void PlaceShortSellOrder()
         {
-            decimal amount = (decimal)Math.Round((double)OrderSizeQuote / (double)CurrentPrice, basePrecision);
+            List<Kline> priceList = GetLastKLines(1);
+            decimal price = (decimal)priceList[0].ClosePrice;
+            decimal amount = (decimal)Math.Round((double)OrderSizeQuote / (double)price, basePrecision);
 
             var sellOrder = Client.SpotApi.Trading.PlaceMarginOrderAsync(TradePairSymbol, OrderSide.Sell,
                 SpotOrderType.Market, amount, null, TradePairSymbol + "_sell_market", null, null, null, null, SideEffectType.MarginBuy);
@@ -195,20 +187,19 @@ namespace SimpleTradeBotAsp
             while (klines == null)
                 klines = GetLastKLines(RsiPeriod * 6);
 
-            CurrentPrice = (decimal) klines[klines.Count-1].ClosePrice;
-
             //вычисляем массив rsi
             double[] rsi = CalculateRSISeries(klines);
             //предыдущее значение rsi
             double prevRsi = rsi[rsi.Length - 2];
             //текущее значение rsi
-            CurrentRsi = rsi[rsi.Length - 1];
+            double cRsi = rsi[rsi.Length - 1];
 
-            QuoteBalance = GetBalanceSpot(TradePairQuote);
-            BaseBalance = GetBalanceSpot(TradePairBase);
+            decimal quoteBlance = GetBalanceSpot(TradePairQuote);
+
+            DateTime dt = DateTime.Now;
 
             //если нет ордера на продажу и rsi меньше порога и есть доллары на покупку, то покупаем и продаем
-            if (sos == false && CurrentRsi <= RsiTreshold && QuoteBalance > OrderSizeQuote)
+            if (sos == false && cRsi <= RsiTreshold && quoteBlance > OrderSizeQuote)
             {
 
                 //размещаем ордер на продажу только если предыдущее значение было выше порога
@@ -218,18 +209,20 @@ namespace SimpleTradeBotAsp
                     PlaceLongBuyOrder();
                 else
                 {
-                    WriteToLog("Ордер не размещен (защита от нескольких сделок подряд)");
+                    WriteToLog(dt.ToString() +
+                       " Ордер не размещен (защита от нескольких сделок подряд). Пара " + TradePairSymbol + " RSI =" + cRsi + ". Баланс=" + quoteBlance);
                     return;
                 }
 
-                BaseBalance = GetBalanceSpot(TradePairBase);
                 PlaceLongSellOrder();
 
-                WriteToLog("Купили и разместили новый ордер. Цена takeProfit: "+TpPrice+".Цена stopLoss: "+ SlPrice);
+                WriteToLog(dt.ToString() +
+                    " Купили и разместили новый ордер. Пара " + TradePairSymbol + " RSI =" + cRsi + ". Баланс=" + quoteBlance);
             }
             else
             {
-                WriteToLog((sos ? "Ордер на продажу уже выставлен" : "Ордер на продажу не выставлен"));
+                WriteToLog(dt.ToString() +
+                    (sos ? " Ордер на продажу уже выставлен. " : " Ордер на продажу не выставлен. ") + "Пара " + TradePairSymbol + ". RSI =" + cRsi + ". Баланс=" + quoteBlance);
             }
 
         }
@@ -252,14 +245,15 @@ namespace SimpleTradeBotAsp
             double tpCoef = (100 + PercentTakeProfit) / 100;
             double slCoef = (100 - PercentStopLoss) / 100;
 
-            decimal price = CurrentPrice;
-            TpPrice = (decimal)Math.Round((double)price * tpCoef, PricePrecision);
-            SlPrice = (decimal)Math.Round((double)price * slCoef, PricePrecision);
-            decimal amount = BaseBalance;
+            List<Kline> priceList = GetLastKLines(1);
+            decimal price = (decimal)priceList[0].ClosePrice;
+            decimal tpPrice = (decimal)Math.Round((double)price * tpCoef, PricePrecision);
+            decimal slPrice = (decimal)Math.Round((double)price * slCoef, PricePrecision);
+            decimal amount = GetBalanceSpot(TradePairBase);
 
 
             var sellOrder = Client.SpotApi.Trading.PlaceOcoOrderAsync(TradePairSymbol, OrderSide.Sell, amount,
-                TpPrice, SlPrice, SlPrice,
+                tpPrice, slPrice, slPrice,
                 TradePairSymbol + "_oco_sell", null, null, null,
                 null, TimeInForce.GoodTillCanceled, null, null, null, null, null, null, null);
             sellOrder.Wait();
@@ -277,12 +271,9 @@ namespace SimpleTradeBotAsp
         //покупает TradePairSymbol на OrderSizeUsdt долларов
         public void PlaceLongBuyOrder()
         {
-            decimal amount = (decimal)Math.Round((double)OrderSizeQuote / (double)CurrentPrice, basePrecision);
-
             var buyOrder = Client.SpotApi.Trading.PlaceOrderAsync(TradePairSymbol,
                 OrderSide.Buy, SpotOrderType.Market,
-                amount, null, TradePairSymbol + "_buy_market", null, null, null, null, null, null, null, null, null, null);
-            
+                null, OrderSizeQuote, TradePairSymbol + "_buy_market", null, null, null, null, null, null, null, null, null, null);
             buyOrder.Wait();
         }
 

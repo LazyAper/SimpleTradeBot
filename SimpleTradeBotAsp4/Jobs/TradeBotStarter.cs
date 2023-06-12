@@ -3,20 +3,14 @@ using System.Net.Mail;
 using System.Net;
 using System.Threading.Tasks;
 
-namespace SimpleTradeBotAsp.Jobs
+namespace SimpleTradeBotAsp4.Jobs
 {
     public class TradeBotStarter: IJob
     {
-        private TradeBots tradeBots;
-
-        public TradeBotStarter()
-        {
-            tradeBots = new TradeBots();
-        }
-
         public async Task Execute(IJobExecutionContext context)
         {
-            await Task.Run(() => tradeBots.RunAllBotsStep());
+            TradeBot tb = new TradeBot();
+            await Task.Run(() => tb.TradeStep());
         }
     }
 }
