@@ -10,7 +10,7 @@ namespace SimpleTradeBotBacktester.Data
     class DataBaseContext : Microsoft.EntityFrameworkCore.DbContext
     {
         public DbSet<Pair> Pairs { get; set; }
-        public DbSet<Pair> Settings { get; set; }
+        public DbSet<Setting> Settings { get; set; }
 
         public DataBaseContext()
         {

@@ -14,10 +14,6 @@ namespace SimpleTradeBotBacktester
         private static BinanceClient GetClient()
         {
             var Client = new BinanceClient();
-            Client.SetApiCredentials(new Binance.Net.Objects.BinanceApiCredentials(
-                "p39EYe4QxRZS2dXgSL73xCspn88TCQNLQd93ZUKE7rkCuyd2jADi1AD4KntKApv3",
-                "tudhsqIz826OAOuaD1dx0ER1cGnrDNzPeKq2pQYIIlVirbbLPipcHrLeZolhTmpN"));
-
             return Client;
         }
 
@@ -33,6 +29,9 @@ namespace SimpleTradeBotBacktester
             var symbols = exinf.Result.Data.Symbols;
 
             var result = symbols.Where((x) => x.QuoteAsset == quote).ToList();
+            
+            //возвращаем пока 3 элемента для простоты разработки
+            //result = result.Take(3).ToList();
 
             return result;
 
@@ -44,10 +43,7 @@ namespace SimpleTradeBotBacktester
         /// </summary>
         public static void DownloadKlines(string Symbol, out List<Kline> weekKlines, out List<Kline> dayKlines)
         {
-            var exinf = GetClient().SpotApi.ExchangeData.GetExchangeInfoAsync();
-            exinf.Wait();
-
-            DateTime serverTime = exinf.Result.Data.ServerTime;
+            DateTime serverTime = DateTime.UtcNow;
             DateTime FromTime = serverTime.AddDays(-1*7);
             DateTime ToTime = serverTime;
 

@@ -16,5 +16,6 @@ namespace SimpleTradeBotBacktester.Data
 
         public double BestWeekProfit { get; set; }
         public double BestDayProfit { get; set; }
+        public DateTime LastTestTime { get; set; }
     }
 }

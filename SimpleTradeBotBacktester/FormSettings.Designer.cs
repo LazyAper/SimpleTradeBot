@@ -30,16 +30,18 @@
         {
             components = new System.ComponentModel.Container();
             dataGridViewSettings = new DataGridView();
-            settingBindingSource = new BindingSource(components);
-            idSettingDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
+            settingIdDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
             rsiPeriodDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
             rsiTresholdDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
             percentTakeProfitDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
             percentStopLossDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
             onlyOneSellDataGridViewCheckBoxColumn = new DataGridViewCheckBoxColumn();
-            timeDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
             weekProfitDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
             dayProfitDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
+            dayTradesDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
+            weekTradesDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
+            pairCurrentDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
+            settingBindingSource = new BindingSource(components);
             ((System.ComponentModel.ISupportInitialize)dataGridViewSettings).BeginInit();
             ((System.ComponentModel.ISupportInitialize)settingBindingSource).BeginInit();
             SuspendLayout();
@@ -49,26 +51,22 @@
             dataGridViewSettings.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dataGridViewSettings.AutoGenerateColumns = false;
             dataGridViewSettings.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewSettings.Columns.AddRange(new DataGridViewColumn[] { idSettingDataGridViewTextBoxColumn, rsiPeriodDataGridViewTextBoxColumn, rsiTresholdDataGridViewTextBoxColumn, percentTakeProfitDataGridViewTextBoxColumn, percentStopLossDataGridViewTextBoxColumn, onlyOneSellDataGridViewCheckBoxColumn, timeDataGridViewTextBoxColumn, weekProfitDataGridViewTextBoxColumn, dayProfitDataGridViewTextBoxColumn });
+            dataGridViewSettings.Columns.AddRange(new DataGridViewColumn[] { settingIdDataGridViewTextBoxColumn, rsiPeriodDataGridViewTextBoxColumn, rsiTresholdDataGridViewTextBoxColumn, percentTakeProfitDataGridViewTextBoxColumn, percentStopLossDataGridViewTextBoxColumn, onlyOneSellDataGridViewCheckBoxColumn, weekProfitDataGridViewTextBoxColumn, dayProfitDataGridViewTextBoxColumn, dayTradesDataGridViewTextBoxColumn, weekTradesDataGridViewTextBoxColumn, pairCurrentDataGridViewTextBoxColumn });
             dataGridViewSettings.DataSource = settingBindingSource;
             dataGridViewSettings.Location = new Point(12, 12);
             dataGridViewSettings.Name = "dataGridViewSettings";
             dataGridViewSettings.RowHeadersWidth = 51;
             dataGridViewSettings.RowTemplate.Height = 29;
-            dataGridViewSettings.Size = new Size(1186, 489);
+            dataGridViewSettings.Size = new Size(1310, 501);
             dataGridViewSettings.TabIndex = 0;
             // 
-            // settingBindingSource
+            // settingIdDataGridViewTextBoxColumn
             // 
-            settingBindingSource.DataSource = typeof(Data.Setting);
-            // 
-            // idSettingDataGridViewTextBoxColumn
-            // 
-            idSettingDataGridViewTextBoxColumn.DataPropertyName = "IdSetting";
-            idSettingDataGridViewTextBoxColumn.HeaderText = "IdSetting";
-            idSettingDataGridViewTextBoxColumn.MinimumWidth = 6;
-            idSettingDataGridViewTextBoxColumn.Name = "idSettingDataGridViewTextBoxColumn";
-            idSettingDataGridViewTextBoxColumn.Width = 125;
+            settingIdDataGridViewTextBoxColumn.DataPropertyName = "SettingId";
+            settingIdDataGridViewTextBoxColumn.HeaderText = "SettingId";
+            settingIdDataGridViewTextBoxColumn.MinimumWidth = 6;
+            settingIdDataGridViewTextBoxColumn.Name = "settingIdDataGridViewTextBoxColumn";
+            settingIdDataGridViewTextBoxColumn.Width = 125;
             // 
             // rsiPeriodDataGridViewTextBoxColumn
             // 
@@ -110,14 +108,6 @@
             onlyOneSellDataGridViewCheckBoxColumn.Name = "onlyOneSellDataGridViewCheckBoxColumn";
             onlyOneSellDataGridViewCheckBoxColumn.Width = 125;
             // 
-            // timeDataGridViewTextBoxColumn
-            // 
-            timeDataGridViewTextBoxColumn.DataPropertyName = "Time";
-            timeDataGridViewTextBoxColumn.HeaderText = "Time";
-            timeDataGridViewTextBoxColumn.MinimumWidth = 6;
-            timeDataGridViewTextBoxColumn.Name = "timeDataGridViewTextBoxColumn";
-            timeDataGridViewTextBoxColumn.Width = 125;
-            // 
             // weekProfitDataGridViewTextBoxColumn
             // 
             weekProfitDataGridViewTextBoxColumn.DataPropertyName = "WeekProfit";
@@ -134,14 +124,43 @@
             dayProfitDataGridViewTextBoxColumn.Name = "dayProfitDataGridViewTextBoxColumn";
             dayProfitDataGridViewTextBoxColumn.Width = 125;
             // 
+            // dayTradesDataGridViewTextBoxColumn
+            // 
+            dayTradesDataGridViewTextBoxColumn.DataPropertyName = "DayTrades";
+            dayTradesDataGridViewTextBoxColumn.HeaderText = "DayTrades";
+            dayTradesDataGridViewTextBoxColumn.MinimumWidth = 6;
+            dayTradesDataGridViewTextBoxColumn.Name = "dayTradesDataGridViewTextBoxColumn";
+            dayTradesDataGridViewTextBoxColumn.Width = 125;
+            // 
+            // weekTradesDataGridViewTextBoxColumn
+            // 
+            weekTradesDataGridViewTextBoxColumn.DataPropertyName = "WeekTrades";
+            weekTradesDataGridViewTextBoxColumn.HeaderText = "WeekTrades";
+            weekTradesDataGridViewTextBoxColumn.MinimumWidth = 6;
+            weekTradesDataGridViewTextBoxColumn.Name = "weekTradesDataGridViewTextBoxColumn";
+            weekTradesDataGridViewTextBoxColumn.Width = 125;
+            // 
+            // pairCurrentDataGridViewTextBoxColumn
+            // 
+            pairCurrentDataGridViewTextBoxColumn.DataPropertyName = "PairCurrent";
+            pairCurrentDataGridViewTextBoxColumn.HeaderText = "PairCurrent";
+            pairCurrentDataGridViewTextBoxColumn.MinimumWidth = 6;
+            pairCurrentDataGridViewTextBoxColumn.Name = "pairCurrentDataGridViewTextBoxColumn";
+            pairCurrentDataGridViewTextBoxColumn.Width = 125;
+            // 
+            // settingBindingSource
+            // 
+            settingBindingSource.DataSource = typeof(Data.Setting);
+            // 
             // FormSettings
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1233, 513);
+            ClientSize = new Size(1357, 525);
             Controls.Add(dataGridViewSettings);
             Name = "FormSettings";
             Text = "Настройки пары";
+            Load += FormSettings_Load;
             ((System.ComponentModel.ISupportInitialize)dataGridViewSettings).EndInit();
             ((System.ComponentModel.ISupportInitialize)settingBindingSource).EndInit();
             ResumeLayout(false);
@@ -151,14 +170,18 @@
 
         private DataGridView dataGridViewSettings;
         private DataGridViewTextBoxColumn idSettingDataGridViewTextBoxColumn;
+        private DataGridViewTextBoxColumn timeDataGridViewTextBoxColumn;
+        private DataGridViewTextBoxColumn settingIdDataGridViewTextBoxColumn;
         private DataGridViewTextBoxColumn rsiPeriodDataGridViewTextBoxColumn;
         private DataGridViewTextBoxColumn rsiTresholdDataGridViewTextBoxColumn;
         private DataGridViewTextBoxColumn percentTakeProfitDataGridViewTextBoxColumn;
         private DataGridViewTextBoxColumn percentStopLossDataGridViewTextBoxColumn;
         private DataGridViewCheckBoxColumn onlyOneSellDataGridViewCheckBoxColumn;
-        private DataGridViewTextBoxColumn timeDataGridViewTextBoxColumn;
         private DataGridViewTextBoxColumn weekProfitDataGridViewTextBoxColumn;
         private DataGridViewTextBoxColumn dayProfitDataGridViewTextBoxColumn;
+        private DataGridViewTextBoxColumn dayTradesDataGridViewTextBoxColumn;
+        private DataGridViewTextBoxColumn weekTradesDataGridViewTextBoxColumn;
+        private DataGridViewTextBoxColumn pairCurrentDataGridViewTextBoxColumn;
         private BindingSource settingBindingSource;
     }
 }

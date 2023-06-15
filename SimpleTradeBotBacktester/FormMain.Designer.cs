@@ -30,19 +30,17 @@
         {
             components = new System.ComponentModel.Container();
             dataGridViewPairs = new DataGridView();
-            pairBindingSource = new BindingSource(components);
-            settingsBindingSource = new BindingSource(components);
-            idPairDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
+            pairIdDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
             symbolDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
             bestWeekProfitDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
             bestDayProfitDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
-            pairBindingSource1 = new BindingSource(components);
-            buttonDownload = new Button();
-            button1 = new Button();
+            lastTestTimeDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
+            pairBindingSource = new BindingSource(components);
+            buttonCalcPair = new Button();
+            button2 = new Button();
+            buttonShowSettings = new Button();
             ((System.ComponentModel.ISupportInitialize)dataGridViewPairs).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pairBindingSource).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)settingsBindingSource).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)pairBindingSource1).BeginInit();
             SuspendLayout();
             // 
             // dataGridViewPairs
@@ -50,31 +48,22 @@
             dataGridViewPairs.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dataGridViewPairs.AutoGenerateColumns = false;
             dataGridViewPairs.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewPairs.Columns.AddRange(new DataGridViewColumn[] { idPairDataGridViewTextBoxColumn, symbolDataGridViewTextBoxColumn, bestWeekProfitDataGridViewTextBoxColumn, bestDayProfitDataGridViewTextBoxColumn });
-            dataGridViewPairs.DataSource = pairBindingSource1;
+            dataGridViewPairs.Columns.AddRange(new DataGridViewColumn[] { pairIdDataGridViewTextBoxColumn, symbolDataGridViewTextBoxColumn, bestWeekProfitDataGridViewTextBoxColumn, bestDayProfitDataGridViewTextBoxColumn, lastTestTimeDataGridViewTextBoxColumn });
+            dataGridViewPairs.DataSource = pairBindingSource;
             dataGridViewPairs.Location = new Point(12, 12);
             dataGridViewPairs.Name = "dataGridViewPairs";
             dataGridViewPairs.RowHeadersWidth = 51;
             dataGridViewPairs.RowTemplate.Height = 29;
-            dataGridViewPairs.Size = new Size(947, 487);
+            dataGridViewPairs.Size = new Size(958, 477);
             dataGridViewPairs.TabIndex = 0;
             // 
-            // pairBindingSource
+            // pairIdDataGridViewTextBoxColumn
             // 
-            pairBindingSource.DataSource = typeof(Data.Pair);
-            // 
-            // settingsBindingSource
-            // 
-            settingsBindingSource.DataMember = "Settings";
-            settingsBindingSource.DataSource = pairBindingSource;
-            // 
-            // idPairDataGridViewTextBoxColumn
-            // 
-            idPairDataGridViewTextBoxColumn.DataPropertyName = "IdPair";
-            idPairDataGridViewTextBoxColumn.HeaderText = "IdPair";
-            idPairDataGridViewTextBoxColumn.MinimumWidth = 6;
-            idPairDataGridViewTextBoxColumn.Name = "idPairDataGridViewTextBoxColumn";
-            idPairDataGridViewTextBoxColumn.Width = 125;
+            pairIdDataGridViewTextBoxColumn.DataPropertyName = "PairId";
+            pairIdDataGridViewTextBoxColumn.HeaderText = "PairId";
+            pairIdDataGridViewTextBoxColumn.MinimumWidth = 6;
+            pairIdDataGridViewTextBoxColumn.Name = "pairIdDataGridViewTextBoxColumn";
+            pairIdDataGridViewTextBoxColumn.Width = 125;
             // 
             // symbolDataGridViewTextBoxColumn
             // 
@@ -100,59 +89,78 @@
             bestDayProfitDataGridViewTextBoxColumn.Name = "bestDayProfitDataGridViewTextBoxColumn";
             bestDayProfitDataGridViewTextBoxColumn.Width = 125;
             // 
-            // pairBindingSource1
+            // lastTestTimeDataGridViewTextBoxColumn
             // 
-            pairBindingSource1.DataSource = typeof(Data.Pair);
+            lastTestTimeDataGridViewTextBoxColumn.DataPropertyName = "LastTestTime";
+            lastTestTimeDataGridViewTextBoxColumn.HeaderText = "LastTestTime";
+            lastTestTimeDataGridViewTextBoxColumn.MinimumWidth = 6;
+            lastTestTimeDataGridViewTextBoxColumn.Name = "lastTestTimeDataGridViewTextBoxColumn";
+            lastTestTimeDataGridViewTextBoxColumn.Width = 125;
             // 
-            // buttonDownload
+            // pairBindingSource
             // 
-            buttonDownload.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            buttonDownload.Location = new Point(16, 516);
-            buttonDownload.Name = "buttonDownload";
-            buttonDownload.Size = new Size(161, 29);
-            buttonDownload.TabIndex = 1;
-            buttonDownload.Text = "Загрузить";
-            buttonDownload.UseVisualStyleBackColor = true;
+            pairBindingSource.DataSource = typeof(Data.Pair);
             // 
-            // button1
+            // buttonCalcPair
             // 
-            button1.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            button1.Location = new Point(192, 514);
-            button1.Name = "button1";
-            button1.Size = new Size(168, 29);
-            button1.TabIndex = 2;
-            button1.Text = "Рассчитать";
-            button1.UseVisualStyleBackColor = true;
+            buttonCalcPair.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            buttonCalcPair.Location = new Point(30, 515);
+            buttonCalcPair.Name = "buttonCalcPair";
+            buttonCalcPair.Size = new Size(169, 29);
+            buttonCalcPair.TabIndex = 1;
+            buttonCalcPair.Text = "Расссчитать пару";
+            buttonCalcPair.UseVisualStyleBackColor = true;
+            buttonCalcPair.Click += buttonCalcPair_Click_1;
+            // 
+            // button2
+            // 
+            button2.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            button2.Location = new Point(225, 515);
+            button2.Name = "button2";
+            button2.Size = new Size(202, 29);
+            button2.TabIndex = 2;
+            button2.Text = "Отсортировать таблицу";
+            button2.UseVisualStyleBackColor = true;
+            // 
+            // buttonShowSettings
+            // 
+            buttonShowSettings.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            buttonShowSettings.Location = new Point(805, 515);
+            buttonShowSettings.Name = "buttonShowSettings";
+            buttonShowSettings.Size = new Size(165, 29);
+            buttonShowSettings.TabIndex = 3;
+            buttonShowSettings.Text = "Показать настройки";
+            buttonShowSettings.UseVisualStyleBackColor = true;
+            buttonShowSettings.Click += buttonShowSettings_Click_1;
             // 
             // FormMain
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(971, 541);
-            Controls.Add(button1);
-            Controls.Add(buttonDownload);
+            ClientSize = new Size(982, 565);
+            Controls.Add(buttonShowSettings);
+            Controls.Add(button2);
+            Controls.Add(buttonCalcPair);
             Controls.Add(dataGridViewPairs);
             Name = "FormMain";
             Text = "SimpleTradeBot Backtester";
             Load += FormMain_Load;
             ((System.ComponentModel.ISupportInitialize)dataGridViewPairs).EndInit();
             ((System.ComponentModel.ISupportInitialize)pairBindingSource).EndInit();
-            ((System.ComponentModel.ISupportInitialize)settingsBindingSource).EndInit();
-            ((System.ComponentModel.ISupportInitialize)pairBindingSource1).EndInit();
             ResumeLayout(false);
         }
 
         #endregion
-
-        private DataGridView dataGridViewPairs;
-        private BindingSource pairBindingSource;
         private DataGridViewTextBoxColumn idPairDataGridViewTextBoxColumn;
+        private DataGridView dataGridViewPairs;
+        private DataGridViewTextBoxColumn pairIdDataGridViewTextBoxColumn;
         private DataGridViewTextBoxColumn symbolDataGridViewTextBoxColumn;
         private DataGridViewTextBoxColumn bestWeekProfitDataGridViewTextBoxColumn;
         private DataGridViewTextBoxColumn bestDayProfitDataGridViewTextBoxColumn;
-        private BindingSource pairBindingSource1;
-        private BindingSource settingsBindingSource;
-        private Button buttonDownload;
-        private Button button1;
+        private DataGridViewTextBoxColumn lastTestTimeDataGridViewTextBoxColumn;
+        private BindingSource pairBindingSource;
+        private Button buttonCalcPair;
+        private Button button2;
+        private Button buttonShowSettings;
     }
 }

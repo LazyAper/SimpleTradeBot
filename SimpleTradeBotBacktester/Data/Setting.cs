@@ -14,9 +14,10 @@ namespace SimpleTradeBotBacktester.Data
         public double PercentTakeProfit { get; set; }
         public double PercentStopLoss { get; set; }
         public bool OnlyOneSell { get; set; }
-        public DateTime Time { get; set; }
         public double WeekProfit { get; set; }
         public double DayProfit { get; set; }
+        public double DayTrades { get; set; }
+        public double WeekTrades { get; set; }
         public Pair PairCurrent { get; set; }
 
 
