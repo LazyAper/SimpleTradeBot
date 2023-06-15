@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleTradeBotAsp", "Simple
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleTradeBotBacktester", "SimpleTradeBotBacktester\SimpleTradeBotBacktester.csproj", "{1E6521EF-F449-42EF-9C43-7C75CB2BFFED}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleTradeBotAsp4", "SimpleTradeBotAsp4\SimpleTradeBotAsp4.csproj", "{23FEF14A-5A1E-40BC-A785-6E8DFADA9C7D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleTradeBotDesktop", "SimpleTradeBotDesktop\SimpleTradeBotDesktop.csproj", "{E4E65927-39E3-4BE9-BDEB-C4DC92CFF614}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,10 +29,10 @@ Global
 		{1E6521EF-F449-42EF-9C43-7C75CB2BFFED}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1E6521EF-F449-42EF-9C43-7C75CB2BFFED}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1E6521EF-F449-42EF-9C43-7C75CB2BFFED}.Release|Any CPU.Build.0 = Release|Any CPU
-		{23FEF14A-5A1E-40BC-A785-6E8DFADA9C7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{23FEF14A-5A1E-40BC-A785-6E8DFADA9C7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{23FEF14A-5A1E-40BC-A785-6E8DFADA9C7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{23FEF14A-5A1E-40BC-A785-6E8DFADA9C7D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E4E65927-39E3-4BE9-BDEB-C4DC92CFF614}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E4E65927-39E3-4BE9-BDEB-C4DC92CFF614}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E4E65927-39E3-4BE9-BDEB-C4DC92CFF614}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E4E65927-39E3-4BE9-BDEB-C4DC92CFF614}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

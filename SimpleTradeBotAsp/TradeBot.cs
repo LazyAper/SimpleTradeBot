@@ -14,6 +14,10 @@ namespace SimpleTradeBotAsp
 {
     class TradeBot
     {
+        private BinanceClient Client;
+
+
+        //настройки бота
         public string TradePairBase = "AMB";
         public string TradePairQuote = "USDT";
         public string TradePairSymbol = "AMBUSDT";
@@ -22,7 +26,6 @@ namespace SimpleTradeBotAsp
         public int RsiTreshold = 50;
         public double PercentTakeProfit = 1.5;
         public double PercentStopLoss = 0.5;
-        public BinanceClient Client;
         public int PricePrecision = 5;
         public int basePrecision = 0;
         public int quotePrecision = 0;
@@ -123,11 +126,11 @@ namespace SimpleTradeBotAsp
         //возвращает true если ордер на продажу всё еще размещен и не выполнен и не отменен
         public bool GetShortBuyOrderStatus()
         {
-            var sellOrder = Client.SpotApi.Trading.GetMarginOcoOrderAsync(null, false, null, TradePairSymbol + "_oco_buy");
-            sellOrder.Wait();
+            var buyOrder = Client.SpotApi.Trading.GetMarginOcoOrderAsync(null, false, null, TradePairSymbol + "_oco_buy");
+            buyOrder.Wait();
 
-            if (sellOrder.Result.Data != null)
-                return (sellOrder.Result.Data.ListOrderStatus == ListOrderStatus.Executing);
+            if (buyOrder.Result.Data != null)
+                return (buyOrder.Result.Data.ListOrderStatus == ListOrderStatus.Executing);
             else
                 return false;
         }
@@ -145,6 +148,11 @@ namespace SimpleTradeBotAsp
                 TradePairSymbol, OrderSide.Buy, TpPrice, SlPrice, BaseBalance, SlPrice, TimeInForce.GoodTillCanceled, null, null, SideEffectType.AutoRepay, null, TradePairSymbol+"_oco_buy");
                 
             buyOrder.Wait();
+
+            if (buyOrder.Result.Success == false)
+            {
+                WriteToLog("Ошибка. " + buyOrder.Result.Error.Message);
+            }
         }
 
         //продает TradePairSymbol на OrderSizeQuote долларов. возвращает количество проданных монет
@@ -157,6 +165,10 @@ namespace SimpleTradeBotAsp
 
             sellOrder.Wait();
 
+            if (sellOrder.Result.Success == false)
+            {
+                WriteToLog("Ошибка. " + sellOrder.Result.Error.Message);
+            }
         }
 
         //получает маржинальный доуступный баланс заданной валюты
@@ -182,7 +194,13 @@ namespace SimpleTradeBotAsp
             var balances = Client.SpotApi.Account.GetMarginAccountInfoAsync();
             balances.Wait();
 
-            return Math.Round((decimal)balances.Result.Data.Balances.First(x => x.Asset == currency).Borrowed, basePrecision);
+            if (balances.Result.Success == false)
+            {
+                WriteToLog("Ошибка. " + balances.Result.Error.Message);
+                return 0;
+            }
+            else
+                return Math.Round((decimal)balances.Result.Data.Balances.First(x => x.Asset == currency).Borrowed, basePrecision);
         }
 
         //шаг лонг торговли, покупает если надо и оставляет ордер на продажу
@@ -240,8 +258,10 @@ namespace SimpleTradeBotAsp
             var sellOrder = Client.SpotApi.Trading.GetOcoOrderAsync(null, TradePairSymbol + "_oco_sell", null);
             sellOrder.Wait();
 
-            if (sellOrder.Result.Data != null)
+            if (sellOrder.Result.Data != null) {
+
                 return (sellOrder.Result.Data.ListOrderStatus == ListOrderStatus.Executing);
+            }
             else
                 return false;
         }
@@ -255,7 +275,7 @@ namespace SimpleTradeBotAsp
             decimal price = CurrentPrice;
             TpPrice = (decimal)Math.Round((double)price * tpCoef, PricePrecision);
             SlPrice = (decimal)Math.Round((double)price * slCoef, PricePrecision);
-            decimal amount = BaseBalance;
+            decimal amount = Math.Round(BaseBalance, basePrecision);
 
 
             var sellOrder = Client.SpotApi.Trading.PlaceOcoOrderAsync(TradePairSymbol, OrderSide.Sell, amount,
@@ -263,6 +283,11 @@ namespace SimpleTradeBotAsp
                 TradePairSymbol + "_oco_sell", null, null, null,
                 null, TimeInForce.GoodTillCanceled, null, null, null, null, null, null, null);
             sellOrder.Wait();
+
+            if(sellOrder.Result.Success == false)
+            {
+                WriteToLog("Ошибка. " + sellOrder.Result.Error.Message);
+            }
         }
 
         //получает баланс заданной валюты
@@ -271,7 +296,13 @@ namespace SimpleTradeBotAsp
             var balances = Client.SpotApi.CommonSpotClient.GetBalancesAsync(null);
             balances.Wait();
 
-            return (decimal)balances.Result.Data.First(x => x.Asset == currency).Total;
+            if (balances.Result.Success == false)
+            {
+                WriteToLog("Ошибка. " + balances.Result.Error.Message);
+                return 0;
+            }
+            else
+                return (decimal)balances.Result.Data.First(x => x.Asset == currency).Total;
         }
 
         //покупает TradePairSymbol на OrderSizeUsdt долларов
@@ -284,6 +315,11 @@ namespace SimpleTradeBotAsp
                 amount, null, TradePairSymbol + "_buy_market", null, null, null, null, null, null, null, null, null, null);
             
             buyOrder.Wait();
+
+            if (buyOrder.Result.Success == false)
+            {
+                WriteToLog("Ошибка. " + buyOrder.Result.Error.Message);
+            }
         }
 
         //возвращает последние amount свечей цен

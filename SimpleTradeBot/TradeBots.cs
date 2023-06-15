@@ -1,8 +1,8 @@
-﻿using SimpleTradeBotAsp.Jobs;
+﻿using System.Collections.Generic;
 using System.Globalization;
 using static System.Collections.Specialized.BitVector32;
 
-namespace SimpleTradeBotAsp
+namespace SimpleTradeBot
 {
     class TradeBots
     {
@@ -33,10 +33,10 @@ namespace SimpleTradeBotAsp
                 tb.PercentTakeProfit = double.Parse(ini.GetValue("PercentTakeProfit", sec), CultureInfo.InvariantCulture);
                 tb.PercentStopLoss = double.Parse(ini.GetValue("PercentStopLoss", sec), CultureInfo.InvariantCulture);
                 tb.PricePrecision = int.Parse(ini.GetValue("PricePrecision", sec));
-                tb.basePrecision = int.Parse(ini.GetValue("basePrecision", sec));
-                tb.quotePrecision = int.Parse(ini.GetValue("quotePrecision", sec));
+                tb.BasePrecision = int.Parse(ini.GetValue("BasePrecision", sec));
+                tb.QuotePrecision = int.Parse(ini.GetValue("QuotePrecision", sec));
                 tb.OnlyOneSell = bool.Parse(ini.GetValue("OnlyOneSell", sec));
-                tb.direction = ini.GetValue("direction", sec);
+                tb.Direction = ini.GetValue("Direction", sec);
 
                 tbs.Add(tb);
             }

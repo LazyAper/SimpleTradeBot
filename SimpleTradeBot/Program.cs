@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.SqlServer.Server;
 using System.Windows.Forms;
 using System.Threading;
+using System.IO;
 
 namespace SimpleTradeBot
 {
@@ -14,14 +15,16 @@ namespace SimpleTradeBot
         [STAThread]
         static void Main()
         {
-
-            TradeBot tb = new TradeBot();
-
-            while (true) {
-                tb.TradeStep();
-                Thread.Sleep(60000);
+            Jobs.TradeBotScheduler.Start();
+            Console.ReadLine();
+            /*
+            TradeBots tradeBots = new TradeBots();
+            while (true)
+            {
+                tradeBots.RunAllBotsStep();
+                Thread.Sleep(50000);
             }
-
+            */
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
