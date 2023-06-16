@@ -48,6 +48,8 @@
             // 
             // dataGridViewSettings
             // 
+            dataGridViewSettings.AllowUserToAddRows = false;
+            dataGridViewSettings.AllowUserToDeleteRows = false;
             dataGridViewSettings.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dataGridViewSettings.AutoGenerateColumns = false;
             dataGridViewSettings.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
@@ -55,9 +57,10 @@
             dataGridViewSettings.DataSource = settingBindingSource;
             dataGridViewSettings.Location = new Point(12, 12);
             dataGridViewSettings.Name = "dataGridViewSettings";
+            dataGridViewSettings.ReadOnly = true;
             dataGridViewSettings.RowHeadersWidth = 51;
             dataGridViewSettings.RowTemplate.Height = 29;
-            dataGridViewSettings.Size = new Size(1310, 501);
+            dataGridViewSettings.Size = new Size(1314, 503);
             dataGridViewSettings.TabIndex = 0;
             // 
             // settingIdDataGridViewTextBoxColumn
@@ -66,6 +69,7 @@
             settingIdDataGridViewTextBoxColumn.HeaderText = "SettingId";
             settingIdDataGridViewTextBoxColumn.MinimumWidth = 6;
             settingIdDataGridViewTextBoxColumn.Name = "settingIdDataGridViewTextBoxColumn";
+            settingIdDataGridViewTextBoxColumn.ReadOnly = true;
             settingIdDataGridViewTextBoxColumn.Width = 125;
             // 
             // rsiPeriodDataGridViewTextBoxColumn
@@ -74,6 +78,7 @@
             rsiPeriodDataGridViewTextBoxColumn.HeaderText = "RsiPeriod";
             rsiPeriodDataGridViewTextBoxColumn.MinimumWidth = 6;
             rsiPeriodDataGridViewTextBoxColumn.Name = "rsiPeriodDataGridViewTextBoxColumn";
+            rsiPeriodDataGridViewTextBoxColumn.ReadOnly = true;
             rsiPeriodDataGridViewTextBoxColumn.Width = 125;
             // 
             // rsiTresholdDataGridViewTextBoxColumn
@@ -82,6 +87,7 @@
             rsiTresholdDataGridViewTextBoxColumn.HeaderText = "RsiTreshold";
             rsiTresholdDataGridViewTextBoxColumn.MinimumWidth = 6;
             rsiTresholdDataGridViewTextBoxColumn.Name = "rsiTresholdDataGridViewTextBoxColumn";
+            rsiTresholdDataGridViewTextBoxColumn.ReadOnly = true;
             rsiTresholdDataGridViewTextBoxColumn.Width = 125;
             // 
             // percentTakeProfitDataGridViewTextBoxColumn
@@ -90,6 +96,7 @@
             percentTakeProfitDataGridViewTextBoxColumn.HeaderText = "PercentTakeProfit";
             percentTakeProfitDataGridViewTextBoxColumn.MinimumWidth = 6;
             percentTakeProfitDataGridViewTextBoxColumn.Name = "percentTakeProfitDataGridViewTextBoxColumn";
+            percentTakeProfitDataGridViewTextBoxColumn.ReadOnly = true;
             percentTakeProfitDataGridViewTextBoxColumn.Width = 125;
             // 
             // percentStopLossDataGridViewTextBoxColumn
@@ -98,6 +105,7 @@
             percentStopLossDataGridViewTextBoxColumn.HeaderText = "PercentStopLoss";
             percentStopLossDataGridViewTextBoxColumn.MinimumWidth = 6;
             percentStopLossDataGridViewTextBoxColumn.Name = "percentStopLossDataGridViewTextBoxColumn";
+            percentStopLossDataGridViewTextBoxColumn.ReadOnly = true;
             percentStopLossDataGridViewTextBoxColumn.Width = 125;
             // 
             // onlyOneSellDataGridViewCheckBoxColumn
@@ -106,6 +114,7 @@
             onlyOneSellDataGridViewCheckBoxColumn.HeaderText = "OnlyOneSell";
             onlyOneSellDataGridViewCheckBoxColumn.MinimumWidth = 6;
             onlyOneSellDataGridViewCheckBoxColumn.Name = "onlyOneSellDataGridViewCheckBoxColumn";
+            onlyOneSellDataGridViewCheckBoxColumn.ReadOnly = true;
             onlyOneSellDataGridViewCheckBoxColumn.Width = 125;
             // 
             // weekProfitDataGridViewTextBoxColumn
@@ -114,6 +123,7 @@
             weekProfitDataGridViewTextBoxColumn.HeaderText = "WeekProfit";
             weekProfitDataGridViewTextBoxColumn.MinimumWidth = 6;
             weekProfitDataGridViewTextBoxColumn.Name = "weekProfitDataGridViewTextBoxColumn";
+            weekProfitDataGridViewTextBoxColumn.ReadOnly = true;
             weekProfitDataGridViewTextBoxColumn.Width = 125;
             // 
             // dayProfitDataGridViewTextBoxColumn
@@ -122,6 +132,7 @@
             dayProfitDataGridViewTextBoxColumn.HeaderText = "DayProfit";
             dayProfitDataGridViewTextBoxColumn.MinimumWidth = 6;
             dayProfitDataGridViewTextBoxColumn.Name = "dayProfitDataGridViewTextBoxColumn";
+            dayProfitDataGridViewTextBoxColumn.ReadOnly = true;
             dayProfitDataGridViewTextBoxColumn.Width = 125;
             // 
             // dayTradesDataGridViewTextBoxColumn
@@ -130,6 +141,7 @@
             dayTradesDataGridViewTextBoxColumn.HeaderText = "DayTrades";
             dayTradesDataGridViewTextBoxColumn.MinimumWidth = 6;
             dayTradesDataGridViewTextBoxColumn.Name = "dayTradesDataGridViewTextBoxColumn";
+            dayTradesDataGridViewTextBoxColumn.ReadOnly = true;
             dayTradesDataGridViewTextBoxColumn.Width = 125;
             // 
             // weekTradesDataGridViewTextBoxColumn
@@ -138,6 +150,7 @@
             weekTradesDataGridViewTextBoxColumn.HeaderText = "WeekTrades";
             weekTradesDataGridViewTextBoxColumn.MinimumWidth = 6;
             weekTradesDataGridViewTextBoxColumn.Name = "weekTradesDataGridViewTextBoxColumn";
+            weekTradesDataGridViewTextBoxColumn.ReadOnly = true;
             weekTradesDataGridViewTextBoxColumn.Width = 125;
             // 
             // pairCurrentDataGridViewTextBoxColumn
@@ -146,6 +159,7 @@
             pairCurrentDataGridViewTextBoxColumn.HeaderText = "PairCurrent";
             pairCurrentDataGridViewTextBoxColumn.MinimumWidth = 6;
             pairCurrentDataGridViewTextBoxColumn.Name = "pairCurrentDataGridViewTextBoxColumn";
+            pairCurrentDataGridViewTextBoxColumn.ReadOnly = true;
             pairCurrentDataGridViewTextBoxColumn.Width = 125;
             // 
             // settingBindingSource
@@ -156,7 +170,7 @@
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1357, 525);
+            ClientSize = new Size(1351, 527);
             Controls.Add(dataGridViewSettings);
             Name = "FormSettings";
             Text = "Настройки пары";

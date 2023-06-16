@@ -26,7 +26,12 @@ namespace SimpleTradeBotBacktester
         /// </summary>
         public int DownloadPairs()
         {
-            List<BinanceSymbol> lbs = BinanceExchange.DownloadSpotPairs("USDT");
+            List<string> quotes = new List<string>();
+            quotes.Add("USDT");
+            quotes.Add("BUSD");
+            quotes.Add("TUSD");
+
+            List<BinanceSymbol> lbs = BinanceExchange.DownloadSpotPairs(quotes);
             int newPairsCount = 0;
 
             foreach(BinanceSymbol bs in lbs)

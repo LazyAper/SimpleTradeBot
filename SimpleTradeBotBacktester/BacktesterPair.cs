@@ -159,16 +159,23 @@ namespace SimpleTradeBotBacktester
 
             //получаем только прибыльные настройки, отсортированные по прибыли за день
             var bestSettings = allSettings.Where((x) => x.WeekProfit>0 && x.DayProfit>0).
-                OrderByDescending((x) => (x.WeekProfit/7 + x.DayProfit)/2).ToList();
+                OrderByDescending((x) => (x.WeekProfit/7 + x.DayProfit)/2).Take(50).ToList();
+
+            //очищаем из памяти настройки для экономии ram
+            allSettings.Clear();
+            allSettings = null;
 
             foreach (Setting setting in bestSettings)
                 backTester.dbContext.Settings.Add(setting);
             backTester.dbContext.SaveChanges();
 
-            pair.BestWeekProfit = bestSettings[0].WeekProfit;
-            pair.BestDayProfit = bestSettings[0].DayProfit;
-            pair.LastTestTime = DateTime.Now;
+            if (bestSettings.Count > 0)
+            {
+                pair.BestWeekProfit = bestSettings[0].WeekProfit;
+                pair.BestDayProfit = bestSettings[0].DayProfit;
+            }
 
+            pair.LastTestTime = DateTime.Now;
             backTester.dbContext.Update(pair);
             backTester.dbContext.SaveChanges();
         }

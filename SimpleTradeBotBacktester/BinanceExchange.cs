@@ -19,16 +19,17 @@ namespace SimpleTradeBotBacktester
 
 
         /// <summary>
-        /// возвращает массив торговых пар
+        /// возвращает массив торговых пар по заданным котировочным валютам
         /// </summary>
-        public static List<BinanceSymbol> DownloadSpotPairs(string quote)
+        public static List<BinanceSymbol> DownloadSpotPairs(List<string> quotes)
         {
             var exinf = GetClient().SpotApi.ExchangeData.GetExchangeInfoAsync();
             exinf.Wait();
 
             var symbols = exinf.Result.Data.Symbols;
 
-            var result = symbols.Where((x) => x.QuoteAsset == quote).ToList();
+            
+            var result = symbols.Where((x) => quotes.Contains(x.QuoteAsset)).ToList();
             
             //возвращаем пока 3 элемента для простоты разработки
             //result = result.Take(3).ToList();
