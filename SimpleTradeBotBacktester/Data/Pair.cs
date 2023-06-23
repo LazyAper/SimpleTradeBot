@@ -10,6 +10,7 @@ namespace SimpleTradeBotBacktester.Data
     public class Pair
     {
         public int PairId { get; set; }
+        public bool IsFavourite { get; set; }
         public string Symbol { get; set; }
 
         public List<Setting> Settings { get; set; } = new List<Setting>();

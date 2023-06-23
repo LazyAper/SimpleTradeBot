@@ -52,11 +52,17 @@ namespace SimpleTradeBotBacktester
                 if (set.OnlyOneSell)
                     buyCond = buyCond && (rsiSeries[i - 1] > set.RsiTreshold);
 
-                bool sellCond = (buyPrice != 0) && openFlag & (
-                    (double)priceHistory[i].OpenPrice >= TpPrice || (double)priceHistory[i].OpenPrice <= slPrice ||
-                    (double)priceHistory[i].LowPrice >= TpPrice || (double)priceHistory[i].LowPrice <= slPrice ||
-                    (double)priceHistory[i].HighPrice >= TpPrice || (double)priceHistory[i].HighPrice <= slPrice ||
-                    (double)priceHistory[i].ClosePrice >= TpPrice || (double)priceHistory[i].ClosePrice <= slPrice);
+                bool sellCondSl = (buyPrice != 0) && openFlag & (
+                    (double)priceHistory[i].OpenPrice <= slPrice ||
+                    (double)priceHistory[i].LowPrice <= slPrice ||
+                    (double)priceHistory[i].HighPrice <= slPrice ||
+                    (double)priceHistory[i].ClosePrice <= slPrice);
+
+                bool sellCondTp = (buyPrice != 0) && openFlag & (
+                     (double)priceHistory[i].OpenPrice >= TpPrice ||
+                     (double)priceHistory[i].LowPrice >= TpPrice ||
+                     (double)priceHistory[i].HighPrice >= TpPrice ||
+                     (double)priceHistory[i].ClosePrice >= TpPrice);
 
                 if (buyCond && !openFlag)
                 {
@@ -64,24 +70,13 @@ namespace SimpleTradeBotBacktester
                     openFlag = true;
                 }
 
-                if (sellCond)
+                if (sellCondSl)
                 {
-
-                    //выявляем наименьшую и наибольшую цену
-                    List<double> prices = new List<double>();
-                    prices.Add((double)priceHistory[i].OpenPrice);
-                    prices.Add((double)priceHistory[i].LowPrice);
-                    prices.Add((double)priceHistory[i].HighPrice);
-                    prices.Add((double)priceHistory[i].ClosePrice);
-
-                    prices.Sort();
-
-
-                    if ((prices[0] <= buyPrice) && (prices[0] <= slPrice))
-                        lossTrades++;
-                    else if ((prices[3] > buyPrice) && (prices[3] >= TpPrice))
-                        winTrades++;
-
+                    lossTrades++;
+                    openFlag = false;
+                }
+                else if(sellCondTp) {
+                    winTrades++;
                     openFlag = false;
                 }
 
@@ -159,11 +154,10 @@ namespace SimpleTradeBotBacktester
 
             //получаем только прибыльные настройки, отсортированные по прибыли за день
             var bestSettings = allSettings.Where((x) => x.WeekProfit>0 && x.DayProfit>0).
-                OrderByDescending((x) => (x.WeekProfit/7 + x.DayProfit)/2).Take(50).ToList();
+                OrderByDescending((x) => (x.WeekProfit/7 + x.DayProfit)/2).Take(100).ToList();
 
             //очищаем из памяти настройки для экономии ram
             allSettings.Clear();
-            allSettings = null;
 
             foreach (Setting setting in bestSettings)
                 backTester.dbContext.Settings.Add(setting);
@@ -185,7 +179,7 @@ namespace SimpleTradeBotBacktester
         /// вычсиление rsi для PriceHistory
         /// </summary>
         /// <returns>массив значений rsi для каждой точки</returns>
-        public double[] CalcRSI(List<Kline> klines, int period)
+        public static double[] CalcRSI(List<Kline> klines, int period)
         {
             int dataSize = klines.Count;
             float[] data = new float[dataSize];

@@ -10,12 +10,15 @@ namespace SimpleTradeBotBacktester
 {
     public partial class FormMain : Form
     {
-        Backtester bt;
+        private Backtester bt;
+        private Backtester btFavourite;
+        private bool favouriteOpen = false;
 
         public FormMain()
         {
             InitializeComponent();
             bt = new Backtester();
+            btFavourite = new Backtester();
         }
 
         private void FormMain_Load(object sender, EventArgs e)
@@ -72,22 +75,37 @@ namespace SimpleTradeBotBacktester
         private void backgroundWorker1_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
             int percentFinished = 0;
-            for (int i = 0; i < bt.Backtesters.Count; i++)
-            {
-                if (checkBoxTodayNotCalc.Checked &&
-                    bt.Backtesters[i].pair.LastTestTime <= DateTime.Now.AddHours(-1*(double)numericUpDownHours.Value))
-                {
-                    toolStripStatusLabel1.Text = "Расчет пары " + bt.Backtesters[i].pair.Symbol;
-                    bt.Backtesters[i].BacktestSettingsFind();
-                }
-                else if (!checkBoxTodayNotCalc.Checked)
-                {
-                    toolStripStatusLabel1.Text = "Расчет пары " + bt.Backtesters[i].pair.Symbol;
-                    bt.Backtesters[i].BacktestSettingsFind();
-                }
 
-                percentFinished = (int)((double)(i + 1) / bt.Backtesters.Count * 100);
-                backgroundWorker1.ReportProgress(percentFinished);
+            if (!favouriteOpen)
+            {
+                for (int i = 0; i < bt.Backtesters.Count; i++)
+                {
+                    if (!checkBoxTodayNotCalc.Checked || checkBoxTodayNotCalc.Checked &&
+                        bt.Backtesters[i].pair.LastTestTime <= DateTime.Now.AddHours(-1 * (double)numericUpDownHours.Value))
+                    {
+                        toolStripStatusLabel1.Text = "Расчет пары " + bt.Backtesters[i].pair.Symbol;
+
+                        bt.Backtesters[i].BacktestSettingsFind();
+
+                        percentFinished = (int)((double)(i + 1) / bt.Backtesters.Count * 100);
+                        backgroundWorker1.ReportProgress(percentFinished);
+                    }
+                }
+            }
+            else if (favouriteOpen)
+            {
+                for (int i = 0; i < btFavourite.Backtesters.Count; i++)
+                {
+                    if (!checkBoxTodayNotCalc.Checked || checkBoxTodayNotCalc.Checked &&
+                        btFavourite.Backtesters[i].pair.LastTestTime <= DateTime.Now.AddHours(-1 * (double)numericUpDownHours.Value))
+                    {
+                        toolStripStatusLabel1.Text = "Расчет пары " + btFavourite.Backtesters[i].pair.Symbol;
+                        btFavourite.Backtesters[i].BacktestSettingsFind();
+                    }
+
+                    percentFinished = (int)((double)(i + 1) / btFavourite.Backtesters.Count * 100);
+                    backgroundWorker1.ReportProgress(percentFinished);
+                }
             }
         }
 
@@ -102,6 +120,38 @@ namespace SimpleTradeBotBacktester
             buttonCalcAll.Text = "Рассчитать все";
             toolStripStatusLabel1.Text = "Расчет пар окончен";
             buttonCalcPair.Enabled = true;
+        }
+
+        private void buttonSearch_Click(object sender, EventArgs e)
+        {
+            pairBindingSource.DataSource = bt.dbContext.Pairs.Where((x) => x.Symbol.Contains(textBoxSearch.Text.ToUpper())).ToList();
+        }
+
+        private void buttonAddFavourites_Click(object sender, EventArgs e)
+        {
+            ((Pair)pairBindingSource.Current).IsFavourite = !((Pair)pairBindingSource.Current).IsFavourite;
+            bt.dbContext.SaveChanges();
+            pairBindingSource.ResetBindings(false);
+        }
+
+        private void buttonFavourites_Click(object sender, EventArgs e)
+        {
+            favouriteOpen = !favouriteOpen;
+
+            if (favouriteOpen)
+            {
+                btFavourite = new Backtester();
+                foreach (BacktesterPair bp in bt.Backtesters)
+                    if (bp.pair.IsFavourite)
+                        btFavourite.Backtesters.Add(bp);
+
+                pairBindingSource.DataSource = bt.dbContext.Pairs.Where((x) => x.IsFavourite).ToList();
+                pairBindingSource.ResetBindings(false);
+            }
+            else
+            {
+                BindPairs();
+            }
         }
     }
 }

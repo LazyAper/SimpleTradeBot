@@ -32,7 +32,7 @@ namespace SimpleTradeBotBacktester
             var result = symbols.Where((x) => quotes.Contains(x.QuoteAsset)).ToList();
             
             //возвращаем пока 3 элемента для простоты разработки
-            //result = result.Take(3).ToList();
+            //result = result.Take(7).ToList();
 
             return result;
 

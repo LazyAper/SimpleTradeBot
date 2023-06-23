@@ -31,5 +31,17 @@ namespace SimpleTradeBotBacktester
             settingBindingSource.DataSource = CurrentSettings;
             settingBindingSource.ResetBindings(false);
         }
+
+        private void buttonTrace_Click(object sender, EventArgs e)
+        {
+            Setting s = (Setting)settingBindingSource.Current;
+
+            FormTrace ft = new FormTrace();
+            ft.trace.set = s;
+            ft.trace.pair = s.PairCurrent;
+
+            ft.Show();
+
+        }
     }
 }

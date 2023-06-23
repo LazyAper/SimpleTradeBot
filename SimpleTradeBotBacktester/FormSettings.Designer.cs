@@ -42,6 +42,7 @@
             weekTradesDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
             pairCurrentDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
             settingBindingSource = new BindingSource(components);
+            buttonTrace = new Button();
             ((System.ComponentModel.ISupportInitialize)dataGridViewSettings).BeginInit();
             ((System.ComponentModel.ISupportInitialize)settingBindingSource).BeginInit();
             SuspendLayout();
@@ -60,7 +61,7 @@
             dataGridViewSettings.ReadOnly = true;
             dataGridViewSettings.RowHeadersWidth = 51;
             dataGridViewSettings.RowTemplate.Height = 29;
-            dataGridViewSettings.Size = new Size(1314, 503);
+            dataGridViewSettings.Size = new Size(1365, 472);
             dataGridViewSettings.TabIndex = 0;
             // 
             // settingIdDataGridViewTextBoxColumn
@@ -166,11 +167,23 @@
             // 
             settingBindingSource.DataSource = typeof(Data.Setting);
             // 
+            // buttonTrace
+            // 
+            buttonTrace.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            buttonTrace.Location = new Point(1222, 490);
+            buttonTrace.Name = "buttonTrace";
+            buttonTrace.Size = new Size(155, 29);
+            buttonTrace.TabIndex = 1;
+            buttonTrace.Text = "Трассировка";
+            buttonTrace.UseVisualStyleBackColor = true;
+            buttonTrace.Click += buttonTrace_Click;
+            // 
             // FormSettings
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1351, 527);
+            ClientSize = new Size(1397, 525);
+            Controls.Add(buttonTrace);
             Controls.Add(dataGridViewSettings);
             Name = "FormSettings";
             Text = "Настройки пары";
@@ -197,5 +210,6 @@
         private DataGridViewTextBoxColumn weekTradesDataGridViewTextBoxColumn;
         private DataGridViewTextBoxColumn pairCurrentDataGridViewTextBoxColumn;
         private BindingSource settingBindingSource;
+        private Button buttonTrace;
     }
 }
