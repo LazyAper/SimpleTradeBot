@@ -43,6 +43,7 @@
             pairCurrentDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
             settingBindingSource = new BindingSource(components);
             buttonTrace = new Button();
+            buttonIniGenerate = new Button();
             ((System.ComponentModel.ISupportInitialize)dataGridViewSettings).BeginInit();
             ((System.ComponentModel.ISupportInitialize)settingBindingSource).BeginInit();
             SuspendLayout();
@@ -178,11 +179,23 @@
             buttonTrace.UseVisualStyleBackColor = true;
             buttonTrace.Click += buttonTrace_Click;
             // 
+            // buttonIniGenerate
+            // 
+            buttonIniGenerate.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            buttonIniGenerate.Location = new Point(1030, 490);
+            buttonIniGenerate.Name = "buttonIniGenerate";
+            buttonIniGenerate.Size = new Size(176, 29);
+            buttonIniGenerate.TabIndex = 2;
+            buttonIniGenerate.Text = "Генерация ini";
+            buttonIniGenerate.UseVisualStyleBackColor = true;
+            buttonIniGenerate.Click += buttonIniGenerate_Click;
+            // 
             // FormSettings
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1397, 525);
+            Controls.Add(buttonIniGenerate);
             Controls.Add(buttonTrace);
             Controls.Add(dataGridViewSettings);
             Name = "FormSettings";
@@ -211,5 +224,6 @@
         private DataGridViewTextBoxColumn pairCurrentDataGridViewTextBoxColumn;
         private BindingSource settingBindingSource;
         private Button buttonTrace;
+        private Button buttonIniGenerate;
     }
 }

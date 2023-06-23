@@ -43,5 +43,14 @@ namespace SimpleTradeBotBacktester
             ft.Show();
 
         }
+
+        private void buttonIniGenerate_Click(object sender, EventArgs e)
+        {
+            Setting s = (Setting)settingBindingSource.Current;
+            FormIni fi = new FormIni();
+            fi.set = s;
+
+            fi.Show();
+        }
     }
 }

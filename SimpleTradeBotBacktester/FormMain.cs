@@ -55,7 +55,9 @@ namespace SimpleTradeBotBacktester
 
         private void buttonSort_Click(object sender, EventArgs e)
         {
-            pairBindingSource.DataSource = bt.dbContext.Pairs.OrderByDescending(x => (x.BestDayProfit + x.BestWeekProfit / 7) / 2).ToList();
+            pairBindingSource.DataSource = bt.dbContext.Pairs.OrderByDescending(x => x.BestWeekProfit).ToList();
+
+            //pairBindingSource.DataSource = bt.dbContext.Pairs.OrderByDescending(x => (x.BestDayProfit + x.BestWeekProfit / 7) / 2).ToList();
         }
 
         private void buttonCalcAll_Click(object sender, EventArgs e)
