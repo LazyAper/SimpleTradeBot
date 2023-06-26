@@ -37,8 +37,8 @@ namespace SimpleTradeBotBacktester
                 "]\r\nTradePairBase=\r\nTradePairQuote=\r\nTradePairSymbol="+
                 set.PairCurrent.Symbol+ "\r\nRsiPeriod="+set.RsiPeriod+"\r\n"+
                 "OrderSizeQuote=11\r\nRsiTreshold="+set.RsiTreshold+
-                "\r\nPercentTakeProfit="+set.PercentTakeProfit+
-                "\r\nPercentStopLoss=" + set.PercentStopLoss +
+                "\r\nPercentTakeProfit="+set.PercentTakeProfit.ToString().Replace(',', '.')+
+                "\r\nPercentStopLoss=" + set.PercentStopLoss.ToString().Replace(',', '.') +
                 "\r\nPricePrecision=\r\nBasePrecision=\r\nQuotePrecision=\r\n" +
                 "OnlyOneSell="+set.OnlyOneSell+ "\r\nDirection=long";
 

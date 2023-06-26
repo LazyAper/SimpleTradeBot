@@ -168,6 +168,11 @@ namespace SimpleTradeBotBacktester
                 pair.BestWeekProfit = bestSettings[0].WeekProfit;
                 pair.BestDayProfit = bestSettings[0].DayProfit;
             }
+            else
+            {
+                pair.BestWeekProfit = 0;
+                pair.BestDayProfit = 0;
+            }
 
             pair.LastTestTime = DateTime.Now;
             backTester.dbContext.Update(pair);
