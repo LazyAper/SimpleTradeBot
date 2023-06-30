@@ -19,26 +19,28 @@ namespace SimpleTradeBot
 
 
         //настройки бота
-        public string TradePairBase = "AMB";
+        public string TradePairBase = "BCH";
         public string TradePairQuote = "USDT";
-        public string TradePairSymbol = "AMBUSDT";
-        public int RsiPeriod = 7;
+        public string TradePairSymbol = "BCHUSDT";
+        public int Parametr1 = 12; //период rsi или быстрая длина macd
+        public int Parametr2 = 26; //порог rsi или медленная длина macd
+        public int Parametr3 = 9; //длина macd
         public decimal OrderSizeQuote = 11;
-        public int RsiTreshold = 50;
-        public double PercentTakeProfit = 1.5;
-        public double PercentStopLoss = 0.5;
-        public int PricePrecision = 5;
-        public int BasePrecision = 0;
-        public int QuotePrecision = 0;
+        public double PercentTakeProfit = 2;
+        public double PercentStopLoss = 2;
+        public int PricePrecision = 1;
+        public int BasePrecision = 3;
+        public int QuotePrecision = 4;
         public string LogFile = "logs/STBLog.txt";
         public bool OnlyOneSell = false; // не более одной покупки подряд
-        public string Direction = "short";
+        public string Direction = "long";
+        public string Indicator = "MACD"; //MACD или RSI
 
         //текущие значения работы бота
         private decimal BaseBalance = 0;
         private decimal QuoteBalance = 0;
         private decimal CurrentPrice = 0;
-        private double CurrentRsi = 0;
+        private double CurrentIndidcator = 0;
         private decimal TpPrice = 0;
         private decimal SlPrice = 0;
 
@@ -59,7 +61,7 @@ namespace SimpleTradeBot
                 + Direction + ". "
                 + msg +
                 ". Текущая цена: " + Math.Round(CurrentPrice, PricePrecision) +
-                ". RSI: " + Math.Round(CurrentRsi, 1) +
+                ". "+ Indicator +": " + Math.Round(CurrentIndidcator, 5) +
                 ". Баланс: " + Math.Round(BaseBalance, 2) + " "+TradePairBase + ", " +
                 Math.Round(QuoteBalance, 2) + " "+TradePairQuote;
 
@@ -86,7 +88,7 @@ namespace SimpleTradeBot
             //получаем историю цен
             List<Kline> klines = null;
             while (klines == null)
-                klines = GetLastKLines(RsiPeriod * 6);
+                klines = GetLastKLines(Parametr1 * 6);
 
             CurrentPrice = (decimal)klines[klines.Count - 1].ClosePrice;
 
@@ -95,16 +97,16 @@ namespace SimpleTradeBot
             //предыдущее значение rsi
             double prevRsi = rsi[rsi.Length - 2];
             //текущее значение rsi
-            CurrentRsi = rsi[rsi.Length - 1];
+            CurrentIndidcator = rsi[rsi.Length - 1];
 
             QuoteBalance = GetBalanceMargin(TradePairQuote);
             BaseBalance = GetBalanceMarginBorrowed(TradePairBase);
 
             //если нет ордера на покупку и rsi больше порога и есть доллары на покупку, то продаем и покупаем
-            if (bos == false && CurrentRsi >= RsiTreshold)
+            if (bos == false && CurrentIndidcator >= Parametr2)
             {
                 //размещаем ордер на покупку только если предыдущее значение было ниже порога
-                if (OnlyOneSell && prevRsi < RsiTreshold && QuoteBalance >= OrderSizeQuote)
+                if (OnlyOneSell && prevRsi < Parametr2 && QuoteBalance >= OrderSizeQuote)
                     PlaceShortSellOrder();
                 else if (!OnlyOneSell)
                     PlaceShortSellOrder();
@@ -226,46 +228,75 @@ namespace SimpleTradeBot
             //получаем историю цен
             List<Kline> klines = null;
             while (klines == null)
-                klines = GetLastKLines(RsiPeriod * 6);
+                klines = GetLastKLines(100);
 
-            CurrentPrice = (decimal) klines[klines.Count-1].ClosePrice;
-
-            //вычисляем массив rsi
-            double[] rsi = CalculateRSISeries(klines);
-            //предыдущее значение rsi
-            double prevRsi = rsi[rsi.Length - 2];
-            //текущее значение rsi
-            CurrentRsi = rsi[rsi.Length - 1];
+            CurrentPrice = (decimal)klines[klines.Count - 1].ClosePrice;
 
             QuoteBalance = GetBalanceSpot(TradePairQuote);
             BaseBalance = GetBalanceSpot(TradePairBase);
 
-            //если нет ордера на продажу и rsi меньше порога и есть доллары на покупку, то покупаем и продаем
-            if (sos == false && CurrentRsi <= RsiTreshold && QuoteBalance > OrderSizeQuote)
-            {
 
-                //размещаем ордер на продажу только если предыдущее значение было выше порога
-                if (OnlyOneSell && prevRsi > RsiTreshold)
-                    PlaceLongBuyOrder();
-                else if (!OnlyOneSell)
-                    PlaceLongBuyOrder();
+            if (Indicator == "RSI")
+            {
+                //вычисляем массив rsi
+                double[] rsi = CalculateRSISeries(klines);
+                //предыдущее значение rsi
+                double prevRsi = rsi[rsi.Length - 2];
+                //текущее значение rsi
+                CurrentIndidcator = rsi[rsi.Length - 1];
+
+                //если нет ордера на продажу и rsi меньше порога и есть доллары на покупку, то покупаем и продаем
+                if (sos == false && CurrentIndidcator <= Parametr2 && QuoteBalance > OrderSizeQuote)
+                {
+
+                    //размещаем ордер на продажу только если предыдущее значение было выше порога
+                    if (OnlyOneSell && prevRsi > Parametr2)
+                        PlaceLongBuyOrder();
+                    else if (!OnlyOneSell)
+                        PlaceLongBuyOrder();
+                    else
+                    {
+                        WriteToLog("Ордер не размещен (защита от нескольких сделок подряд)");
+                        return;
+                    }
+
+                    Thread.Sleep(10000);
+                    BaseBalance = GetBalanceSpot(TradePairBase);
+                    PlaceLongSellOrder();
+
+                    WriteToLog("Купили и разместили новый ордер. Цена takeProfit: " + TpPrice + ".Цена stopLoss: " + SlPrice);
+                }
                 else
                 {
-                    WriteToLog("Ордер не размещен (защита от нескольких сделок подряд)");
-                    return;
+                    WriteToLog((sos ? "Ордер на продажу уже выставлен" : "Ордер на продажу не выставлен"));
+                }
+            }
+            else if (Indicator == "MACD")
+            {
+                //вычисляем массив гистограммы macd
+                double[] macd = CalculateMACDHist(klines);
+                //предыдущее значение macd
+                double prevMacd = macd[macd.Length - 2];
+                //текущее значение macd
+                CurrentIndidcator = macd[macd.Length - 1];
+
+                //если нет ордера на продажу и rsi меньше порога и есть доллары на покупку, то покупаем и продаем
+                if (sos == false && (prevMacd < 0) && (CurrentIndidcator >= 0) && (QuoteBalance > OrderSizeQuote))
+                {
+                    PlaceLongBuyOrder();
+
+                    Thread.Sleep(10000);
+                    BaseBalance = GetBalanceSpot(TradePairBase);
+                    PlaceLongSellOrder();
+
+                    WriteToLog("Купили и разместили новый ордер. Цена takeProfit: " + TpPrice + ".Цена stopLoss: " + SlPrice);
+                }
+                else
+                {
+                    WriteToLog((sos ? "Ордер на продажу уже выставлен" : "Ордер на продажу не выставлен"));
                 }
 
-                Thread.Sleep(10000);
-                BaseBalance = GetBalanceSpot(TradePairBase);
-                PlaceLongSellOrder();
-
-                WriteToLog("Купили и разместили новый ордер. Цена takeProfit: "+TpPrice+".Цена stopLoss: "+ SlPrice);
             }
-            else
-            {
-                WriteToLog((sos ? "Ордер на продажу уже выставлен" : "Ордер на продажу не выставлен"));
-            }
-
         }
 
         //возвращает true если ордер на продажу всё еще размещен и не выполнен и не отменен
@@ -380,12 +411,39 @@ namespace SimpleTradeBot
             int outNBElement = 0;
             double[] output = new double[dataSize];
             Core.RetCode ret;
-            ret = Core.Rsi(0, dataSize - 1, data, RsiPeriod, out outBegIdx, out outNBElement, output);
+            ret = Core.Rsi(0, dataSize - 1, data, Parametr1, out outBegIdx, out outNBElement, output);
 
             //делаем нули в начале, а не в конце
             double[] outputFixed = new double[dataSize];
-            for (int i = 0; i < dataSize - RsiPeriod; i++)
-                outputFixed[i + RsiPeriod] = output[i];
+            for (int i = 0; i < dataSize - Parametr1; i++)
+                outputFixed[i + Parametr1] = output[i];
+
+            if (ret == Core.RetCode.Success)
+                return outputFixed;
+            else
+                return null;
+        }
+
+        public double[] CalculateMACDHist(List<Kline> klines)
+        {
+            int dataSize = klines.Count;
+            double[] data = new double[dataSize];
+            for (int i = 0; i < dataSize; i++)
+                data[i] = (double)klines[i].ClosePrice;
+
+            int outBegIdx = 0;
+            int outNBElement = 0;
+            double[] outMACD = new double[dataSize];
+            double[] outMACDSignal = new double[dataSize];
+            double[] outMACDHist = new double[dataSize];
+            Core.RetCode ret;
+            ret = Core.Macd(0, dataSize-1, data, Parametr1, Parametr2, Parametr3,
+                out outBegIdx, out outNBElement, outMACD, outMACDSignal, outMACDHist);
+
+            //делаем нули в начале, а не в конце
+            double[] outputFixed = new double[dataSize];
+            for (int i = 0; i < outNBElement; i++)
+                outputFixed[i + (dataSize-outNBElement)] = outMACDHist[i];
 
             if (ret == Core.RetCode.Success)
                 return outputFixed;

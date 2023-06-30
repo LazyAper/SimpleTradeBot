@@ -38,6 +38,19 @@ namespace SimpleTradeBotBacktester
 
         }
 
+        public static BinanceSymbol DownloadPairInfo(string sym)
+        {
+            var exinf = GetClient().SpotApi.ExchangeData.GetExchangeInfoAsync();
+            exinf.Wait();
+
+            var symbols = exinf.Result.Data.Symbols;
+
+
+            var result = symbols.First((x) => x.Name == sym);
+
+            return result;
+        }
+
         /// <summary>
         /// возвращает историю цен символа за неделю и день. Текущая цена - последняя.
         /// Время серверное (на 4 часа меньше нашего)

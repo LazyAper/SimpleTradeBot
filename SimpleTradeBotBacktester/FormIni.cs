@@ -1,4 +1,5 @@
-﻿using SimpleTradeBotBacktester.Data;
+﻿using Binance.Net.Objects.Models.Spot;
+using SimpleTradeBotBacktester.Data;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -33,14 +34,22 @@ namespace SimpleTradeBotBacktester
 
         private void FormIni_Load(object sender, EventArgs e)
         {
+            BinanceSymbol bs = BinanceExchange.DownloadPairInfo(set.PairCurrent.Symbol);
+
+
             string iniContent = "["+
-                "]\r\nTradePairBase=\r\nTradePairQuote=\r\nTradePairSymbol="+
-                set.PairCurrent.Symbol+ "\r\nRsiPeriod="+set.RsiPeriod+"\r\n"+
-                "OrderSizeQuote=11\r\nRsiTreshold="+set.RsiTreshold+
-                "\r\nPercentTakeProfit="+set.PercentTakeProfit.ToString().Replace(',', '.')+
+                "]\r\nTradePairBase="+bs.BaseAsset+
+                "\r\nTradePairQuote="+bs.QuoteAsset+
+                "\r\nTradePairSymbol=" +
+                set.PairCurrent.Symbol+
+                "\r\nParametr1="+set.RsiPeriod+
+                "\r\nParametr2=" + set.RsiTreshold+
+                "\r\nParametr3="+
+                "\r\nOrderSizeQuote=11"+
+                "\r\nPercentTakeProfit=" + set.PercentTakeProfit.ToString().Replace(',', '.')+
                 "\r\nPercentStopLoss=" + set.PercentStopLoss.ToString().Replace(',', '.') +
                 "\r\nPricePrecision=\r\nBasePrecision=\r\nQuotePrecision=\r\n" +
-                "OnlyOneSell="+set.OnlyOneSell+ "\r\nDirection=long";
+                "OnlyOneSell="+set.OnlyOneSell+ "\r\nDirection=long\r\nIndicator=MACD";
 
             textBoxIni.Text = iniContent;
         }

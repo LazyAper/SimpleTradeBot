@@ -1,4 +1,5 @@
-﻿using CryptoExchange.Net.CommonObjects;
+﻿using Binance.Net.Enums;
+using CryptoExchange.Net.CommonObjects;
 using Microsoft.VisualBasic.ApplicationServices;
 using SimpleTradeBotBacktester.Data;
 using System;
@@ -16,6 +17,8 @@ namespace SimpleTradeBotBacktester
         double Commision = 0.075;
         public Pair pair;
         Backtester backTester;
+
+        string Indicator = "MACD";
 
         public List<Setting> allSettings { get; set; } = new List<Setting>();
 
@@ -40,17 +43,24 @@ namespace SimpleTradeBotBacktester
             bool openFlag = false;
 
             double[] rsiSeries = CalcRSI(priceHistory, set.RsiPeriod);
-
+            double[] macdHist = CalculateMACDHist(priceHistory);
 
             for (int i = 0; i < priceHistory.Count; i++)
             {
                 double TpPrice = buyPrice * (set.PercentTakeProfit + 100) / 100; //1.015*buyPrice
                 double slPrice = buyPrice * (100 - set.PercentStopLoss) / 100; //0.995*buyPrice
 
-
-                bool buyCond = (rsiSeries[i] > 0) && (rsiSeries[i] <= set.RsiTreshold);
-                if (set.OnlyOneSell)
-                    buyCond = buyCond && (rsiSeries[i - 1] > set.RsiTreshold);
+                bool buyCond = false;
+                if (Indicator == "RSI")
+                {
+                    buyCond = (rsiSeries[i] > 0) && (rsiSeries[i] <= set.RsiTreshold);
+                    if (set.OnlyOneSell)
+                        buyCond = buyCond && (rsiSeries[i - 1] > set.RsiTreshold);
+                }
+                else if (Indicator == "MACD")
+                {
+                    buyCond = (i>0) && (macdHist[i - 1] < 0) && (macdHist[i] >= 0);
+                }
 
                 bool sellCondSl = (buyPrice != 0) && openFlag & (
                     (double)priceHistory[i].OpenPrice <= slPrice ||
@@ -75,7 +85,8 @@ namespace SimpleTradeBotBacktester
                     lossTrades++;
                     openFlag = false;
                 }
-                else if(sellCondTp) {
+                else if (sellCondTp)
+                {
                     winTrades++;
                     openFlag = false;
                 }
@@ -91,7 +102,8 @@ namespace SimpleTradeBotBacktester
                 set.DayTrades = (winTrades + lossTrades);
                 set.DayProfit = profit;
             }
-            else if (period == "week") { 
+            else if (period == "week")
+            {
                 set.WeekTrades = (winTrades + lossTrades);
                 set.WeekProfit = profit;
             }
@@ -107,30 +119,53 @@ namespace SimpleTradeBotBacktester
             dayKlines = new List<Kline>();
             BinanceExchange.DownloadKlines(pair.Symbol, out weekKlines, out dayKlines);
 
-            for (int oos = 0; oos <= 1; oos++)
+            if (Indicator == "RSI")
+            {
+
+                for (int oos = 0; oos <= 1; oos++)
+                    for (double psl = 0.5; psl <= 2.0; psl += 0.25)
+                        for (double ptp = 0.5; ptp <= 2.0; ptp += 0.25)
+                            for (int rsip = 3; rsip <= 19; rsip += 2)
+                                for (int rsit = 10; rsit <= 50; rsit += 5)
+                                {
+                                    Setting setting = new Setting();
+                                    setting.PairCurrent = pair;
+
+                                    if (oos == 0)
+                                        setting.OnlyOneSell = false;
+                                    else if (oos == 1)
+                                        setting.OnlyOneSell = true;
+
+                                    setting.PercentStopLoss = psl;
+                                    setting.PercentTakeProfit = ptp;
+                                    setting.RsiPeriod = rsip;
+                                    setting.RsiTreshold = rsit;
+
+                                    allSettings.Add(setting);
+                                    //моделирование дня и недели
+                                    Backtest(dayKlines, setting, "day");
+                                    Backtest(weekKlines, setting, "week");
+                                }
+            }
+            else if (Indicator == "MACD")
+            {
+
                 for (double psl = 0.5; psl <= 2.0; psl += 0.25)
                     for (double ptp = 0.5; ptp <= 2.0; ptp += 0.25)
-                        for (int rsip = 3; rsip <= 19; rsip += 2)
-                            for (int rsit = 10; rsit <= 50; rsit += 5)
-                            {
-                                Setting setting = new Setting();
-                                setting.PairCurrent = pair;
+                    {
+                        Setting setting = new Setting();
+                        setting.PairCurrent = pair;
+                        setting.OnlyOneSell = false;
+                      
+                        setting.PercentStopLoss = psl;
+                        setting.PercentTakeProfit = ptp;
 
-                                if (oos == 0)
-                                    setting.OnlyOneSell = false;
-                                else if (oos == 1)
-                                    setting.OnlyOneSell = true;
-
-                                setting.PercentStopLoss = psl;
-                                setting.PercentTakeProfit = ptp;
-                                setting.RsiPeriod = rsip;
-                                setting.RsiTreshold = rsit;
-
-                                allSettings.Add(setting);
-                                //моделирование дня и недели
-                                Backtest(dayKlines, setting, "day");
-                                Backtest(weekKlines, setting, "week");
-                            }
+                        allSettings.Add(setting);
+                        //моделирование дня и недели
+                        Backtest(dayKlines, setting, "day");
+                        Backtest(weekKlines, setting, "week");
+                    }
+            }
 
             FindBestProfits();
         }
@@ -153,8 +188,8 @@ namespace SimpleTradeBotBacktester
             backTester.dbContext.SaveChanges();
 
             //получаем только прибыльные настройки, отсортированные по прибыли за день
-            var bestSettings = allSettings.Where((x) => x.WeekProfit>0 && x.DayProfit>0).
-                OrderByDescending((x) => (x.WeekProfit/7 + x.DayProfit)/2).Take(100).ToList();
+            var bestSettings = allSettings.Where((x) => x.WeekProfit > 0 && x.DayProfit > 0).
+                OrderByDescending((x) => (x.WeekProfit / 7 + x.DayProfit) / 2).Take(100).ToList();
 
             //очищаем из памяти настройки для экономии ram
             allSettings.Clear();
@@ -202,6 +237,33 @@ namespace SimpleTradeBotBacktester
             double[] outputFixed = new double[dataSize];
             for (int i = 0; i < dataSize - period; i++)
                 outputFixed[i + period] = output[i];
+
+            if (ret == Core.RetCode.Success)
+                return outputFixed;
+            else
+                return null;
+        }
+
+        public double[] CalculateMACDHist(List<Kline> klines)
+        {
+            int dataSize = klines.Count;
+            double[] data = new double[dataSize];
+            for (int i = 0; i < dataSize; i++)
+                data[i] = (double)klines[i].ClosePrice;
+
+            int outBegIdx = 0;
+            int outNBElement = 0;
+            double[] outMACD = new double[dataSize];
+            double[] outMACDSignal = new double[dataSize];
+            double[] outMACDHist = new double[dataSize];
+            Core.RetCode ret;
+            ret = Core.Macd(0, dataSize - 1, data, 12, 26, 9,
+                out outBegIdx, out outNBElement, outMACD, outMACDSignal, outMACDHist);
+
+            //делаем нули в начале, а не в конце
+            double[] outputFixed = new double[dataSize];
+            for (int i = 0; i < outNBElement; i++)
+                outputFixed[i + (dataSize - outNBElement)] = outMACDHist[i];
 
             if (ret == Core.RetCode.Success)
                 return outputFixed;

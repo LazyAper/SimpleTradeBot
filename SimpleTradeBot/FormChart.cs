@@ -21,11 +21,11 @@ namespace SimpleTradeBot
         private void FormChart_Load(object sender, EventArgs e)
         {
             TradeBot tb = new TradeBot();
-            List<Kline> klines = tb.GetLastKLines(tb.RsiPeriod * 6);
-            double[] rsi = tb.CalculateRSISeries(klines);
+            List<Kline> klines = tb.GetLastKLines(100);
+            double[] macd = tb.CalculateMACDHist(klines);
 
-            for (int i = 0; i < rsi.Length; i++)
-                chart1.Series[0].Points.AddXY(klines[i].OpenTime.Hour*100+klines[i].OpenTime.Minute, (double)rsi[i]);
+            for (int i = 0; i < macd.Length; i++)
+                chart1.Series[0].Points.AddXY(klines[i].OpenTime.Hour*100+klines[i].OpenTime.Minute, (double)macd[i]);
         }
     }
 }

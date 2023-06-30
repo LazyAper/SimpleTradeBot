@@ -17,7 +17,9 @@ namespace SimpleTradeBot
         {
             Jobs.TradeBotScheduler.Start();
             Console.ReadLine();
+
             /*
+             * ручной запуск ботов с таймером
             TradeBots tradeBots = new TradeBots();
             while (true)
             {
