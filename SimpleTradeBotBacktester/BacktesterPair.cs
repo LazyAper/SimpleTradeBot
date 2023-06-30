@@ -42,8 +42,8 @@ namespace SimpleTradeBotBacktester
             double buyPrice = 0;
             bool openFlag = false;
 
-            double[] rsiSeries = CalcRSI(priceHistory, set.RsiPeriod);
-            double[] macdHist = CalculateMACDHist(priceHistory);
+            double[] rsiSeries = CalcRSI(priceHistory, set.Parametr1);
+            double[] macdHist = CalculateMACDHist(priceHistory, set.Parametr1, set.Parametr2, set.Parametr3);
 
             for (int i = 0; i < priceHistory.Count; i++)
             {
@@ -53,9 +53,9 @@ namespace SimpleTradeBotBacktester
                 bool buyCond = false;
                 if (Indicator == "RSI")
                 {
-                    buyCond = (rsiSeries[i] > 0) && (rsiSeries[i] <= set.RsiTreshold);
+                    buyCond = (rsiSeries[i] > 0) && (rsiSeries[i] <= set.Parametr2);
                     if (set.OnlyOneSell)
-                        buyCond = buyCond && (rsiSeries[i - 1] > set.RsiTreshold);
+                        buyCond = buyCond && (rsiSeries[i - 1] > set.Parametr2);
                 }
                 else if (Indicator == "MACD")
                 {
@@ -138,8 +138,8 @@ namespace SimpleTradeBotBacktester
 
                                     setting.PercentStopLoss = psl;
                                     setting.PercentTakeProfit = ptp;
-                                    setting.RsiPeriod = rsip;
-                                    setting.RsiTreshold = rsit;
+                                    setting.Parametr1 = rsip;
+                                    setting.Parametr2 = rsit;
 
                                     allSettings.Add(setting);
                                     //моделирование дня и недели
@@ -149,22 +149,27 @@ namespace SimpleTradeBotBacktester
             }
             else if (Indicator == "MACD")
             {
-
-                for (double psl = 0.5; psl <= 2.0; psl += 0.25)
-                    for (double ptp = 0.5; ptp <= 2.0; ptp += 0.25)
-                    {
-                        Setting setting = new Setting();
-                        setting.PairCurrent = pair;
-                        setting.OnlyOneSell = false;
+                for (int param1 = 8; param1 <= 16; param1 += 2)
+                    for (int param2 = 20; param2 <= 32; param2 += 3)
+                        for (int param3 = 5; param3 <= 13; param3 += 2)
+                            for (double psl = 0.5; psl <= 2.0; psl += 0.25)
+                                for (double ptp = 0.5; ptp <= 2.0; ptp += 0.25)
+                                {
+                                    Setting setting = new Setting();
+                                    setting.PairCurrent = pair;
+                                    setting.Parametr1 = param1;
+                                    setting.Parametr2 = param2;
+                                    setting.Parametr3 = param3;
+                                    setting.OnlyOneSell = false;
                       
-                        setting.PercentStopLoss = psl;
-                        setting.PercentTakeProfit = ptp;
+                                    setting.PercentStopLoss = psl;
+                                    setting.PercentTakeProfit = ptp;
 
-                        allSettings.Add(setting);
-                        //моделирование дня и недели
-                        Backtest(dayKlines, setting, "day");
-                        Backtest(weekKlines, setting, "week");
-                    }
+                                    allSettings.Add(setting);
+                                    //моделирование дня и недели
+                                    Backtest(dayKlines, setting, "day");
+                                    Backtest(weekKlines, setting, "week");
+                                }
             }
 
             FindBestProfits();
@@ -189,7 +194,7 @@ namespace SimpleTradeBotBacktester
 
             //получаем только прибыльные настройки, отсортированные по прибыли за день
             var bestSettings = allSettings.Where((x) => x.WeekProfit > 0 && x.DayProfit > 0).
-                OrderByDescending((x) => (x.WeekProfit / 7 + x.DayProfit) / 2).Take(100).ToList();
+                OrderByDescending((x) => x.WeekProfit).Take(100).ToList();
 
             //очищаем из памяти настройки для экономии ram
             allSettings.Clear();
@@ -244,7 +249,9 @@ namespace SimpleTradeBotBacktester
                 return null;
         }
 
-        public double[] CalculateMACDHist(List<Kline> klines)
+
+        //вычисление macd
+        public double[] CalculateMACDHist(List<Kline> klines, int param1, int param2, int param3)
         {
             int dataSize = klines.Count;
             double[] data = new double[dataSize];
@@ -257,7 +264,7 @@ namespace SimpleTradeBotBacktester
             double[] outMACDSignal = new double[dataSize];
             double[] outMACDHist = new double[dataSize];
             Core.RetCode ret;
-            ret = Core.Macd(0, dataSize - 1, data, 12, 26, 9,
+            ret = Core.Macd(0, dataSize - 1, data, param1, param2, param3,
                 out outBegIdx, out outNBElement, outMACD, outMACDSignal, outMACDHist);
 
             //делаем нули в начале, а не в конце

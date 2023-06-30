@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
+using System.Windows.Forms;
 using static System.Collections.Specialized.BitVector32;
 
 namespace SimpleTradeBot
@@ -21,9 +22,16 @@ namespace SimpleTradeBot
 
             string[] sections = ini.GetSections();
 
-            foreach (var sec in sections)
+            string key = ini.GetValue("key", "api");
+            string secret = ini.GetValue("secret", "api");
+
+            foreach (string sec in sections)
             {
+                if (sec == "api")
+                    continue;
+
                 TradeBot tb = new TradeBot();
+                tb.SetApi(key, secret);
                 tb.TradePairBase=ini.GetValue("TradePairBase", sec);
                 tb.TradePairQuote = ini.GetValue("TradePairQuote", sec);
                 tb.TradePairSymbol = ini.GetValue("TradePairSymbol", sec);

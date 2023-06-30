@@ -34,7 +34,7 @@ namespace SimpleTradeBotBacktester
             var priceHistory = new List<Kline>();
             BinanceExchange.DownloadKlines(pair.Symbol, out weekKlines, out priceHistory);
 
-            double[] rsiSeries = BacktesterPair.CalcRSI(priceHistory, set.RsiPeriod);
+            double[] rsiSeries = BacktesterPair.CalcRSI(priceHistory, set.Parametr1);
 
 
             for (int i = 0; i < priceHistory.Count; i++)
@@ -43,9 +43,9 @@ namespace SimpleTradeBotBacktester
                 double slPrice = buyPrice * (100 - set.PercentStopLoss) / 100; //0.995*buyPrice
 
 
-                bool buyCond = (rsiSeries[i] > 0) && (rsiSeries[i] <= set.RsiTreshold);
+                bool buyCond = (rsiSeries[i] > 0) && (rsiSeries[i] <= set.Parametr2);
                 if (set.OnlyOneSell)
-                    buyCond = buyCond && (rsiSeries[i - 1] > set.RsiTreshold);
+                    buyCond = buyCond && (rsiSeries[i - 1] > set.Parametr2);
 
                 bool sellCondSl = (buyPrice != 0) && openFlag & (
                     (double)priceHistory[i].OpenPrice <= slPrice ||

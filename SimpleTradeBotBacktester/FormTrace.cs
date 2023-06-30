@@ -27,8 +27,8 @@ namespace SimpleTradeBotBacktester
 
             traceTradeBindingSource.DataSource = trace.Trades;
 
-            numericUpDownRSIPeriod.Value = trace.set.RsiPeriod;
-            numericUpDownRSITreshold.Value = trace.set.RsiTreshold;
+            numericUpDownRSIPeriod.Value = trace.set.Parametr1;
+            numericUpDownRSITreshold.Value = trace.set.Parametr2;
             numericUpDownPercentTP.Value = (decimal)trace.set.PercentTakeProfit;
             numericUpDownPercentSL.Value = (decimal)trace.set.PercentStopLoss;
             checkBoxOnlyOneSell.Checked = trace.set.OnlyOneSell;
@@ -37,8 +37,8 @@ namespace SimpleTradeBotBacktester
 
         private void buttonSetSettings_Click(object sender, EventArgs e)
         {
-            trace.set.RsiPeriod = (int)numericUpDownRSIPeriod.Value;
-            trace.set.RsiTreshold = (int)numericUpDownRSITreshold.Value;
+            trace.set.Parametr1 = (int)numericUpDownRSIPeriod.Value;
+            trace.set.Parametr2 = (int)numericUpDownRSITreshold.Value;
             trace.set.PercentTakeProfit = (double)numericUpDownPercentTP.Value;
             trace.set.PercentStopLoss=(double)numericUpDownPercentSL.Value;
             trace.set.OnlyOneSell = checkBoxOnlyOneSell.Checked;

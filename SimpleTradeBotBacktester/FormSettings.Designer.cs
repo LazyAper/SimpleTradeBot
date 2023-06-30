@@ -30,9 +30,13 @@
         {
             components = new System.ComponentModel.Container();
             dataGridViewSettings = new DataGridView();
+            buttonTrace = new Button();
+            buttonIniGenerate = new Button();
+            settingBindingSource = new BindingSource(components);
             settingIdDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
-            rsiPeriodDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
-            rsiTresholdDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
+            parametr1DataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
+            parametr2DataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
+            parametr3DataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
             percentTakeProfitDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
             percentStopLossDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
             onlyOneSellDataGridViewCheckBoxColumn = new DataGridViewCheckBoxColumn();
@@ -41,9 +45,6 @@
             dayTradesDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
             weekTradesDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
             pairCurrentDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
-            settingBindingSource = new BindingSource(components);
-            buttonTrace = new Button();
-            buttonIniGenerate = new Button();
             ((System.ComponentModel.ISupportInitialize)dataGridViewSettings).BeginInit();
             ((System.ComponentModel.ISupportInitialize)settingBindingSource).BeginInit();
             SuspendLayout();
@@ -55,7 +56,7 @@
             dataGridViewSettings.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dataGridViewSettings.AutoGenerateColumns = false;
             dataGridViewSettings.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewSettings.Columns.AddRange(new DataGridViewColumn[] { settingIdDataGridViewTextBoxColumn, rsiPeriodDataGridViewTextBoxColumn, rsiTresholdDataGridViewTextBoxColumn, percentTakeProfitDataGridViewTextBoxColumn, percentStopLossDataGridViewTextBoxColumn, onlyOneSellDataGridViewCheckBoxColumn, weekProfitDataGridViewTextBoxColumn, dayProfitDataGridViewTextBoxColumn, dayTradesDataGridViewTextBoxColumn, weekTradesDataGridViewTextBoxColumn, pairCurrentDataGridViewTextBoxColumn });
+            dataGridViewSettings.Columns.AddRange(new DataGridViewColumn[] { settingIdDataGridViewTextBoxColumn, parametr1DataGridViewTextBoxColumn, parametr2DataGridViewTextBoxColumn, parametr3DataGridViewTextBoxColumn, percentTakeProfitDataGridViewTextBoxColumn, percentStopLossDataGridViewTextBoxColumn, onlyOneSellDataGridViewCheckBoxColumn, weekProfitDataGridViewTextBoxColumn, dayProfitDataGridViewTextBoxColumn, dayTradesDataGridViewTextBoxColumn, weekTradesDataGridViewTextBoxColumn, pairCurrentDataGridViewTextBoxColumn });
             dataGridViewSettings.DataSource = settingBindingSource;
             dataGridViewSettings.Location = new Point(12, 12);
             dataGridViewSettings.Name = "dataGridViewSettings";
@@ -64,6 +65,32 @@
             dataGridViewSettings.RowTemplate.Height = 29;
             dataGridViewSettings.Size = new Size(1365, 472);
             dataGridViewSettings.TabIndex = 0;
+            // 
+            // buttonTrace
+            // 
+            buttonTrace.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            buttonTrace.Location = new Point(1222, 490);
+            buttonTrace.Name = "buttonTrace";
+            buttonTrace.Size = new Size(155, 29);
+            buttonTrace.TabIndex = 1;
+            buttonTrace.Text = "Трассировка";
+            buttonTrace.UseVisualStyleBackColor = true;
+            buttonTrace.Click += buttonTrace_Click;
+            // 
+            // buttonIniGenerate
+            // 
+            buttonIniGenerate.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            buttonIniGenerate.Location = new Point(1030, 490);
+            buttonIniGenerate.Name = "buttonIniGenerate";
+            buttonIniGenerate.Size = new Size(176, 29);
+            buttonIniGenerate.TabIndex = 2;
+            buttonIniGenerate.Text = "Генерация ini";
+            buttonIniGenerate.UseVisualStyleBackColor = true;
+            buttonIniGenerate.Click += buttonIniGenerate_Click;
+            // 
+            // settingBindingSource
+            // 
+            settingBindingSource.DataSource = typeof(Data.Setting);
             // 
             // settingIdDataGridViewTextBoxColumn
             // 
@@ -74,23 +101,32 @@
             settingIdDataGridViewTextBoxColumn.ReadOnly = true;
             settingIdDataGridViewTextBoxColumn.Width = 125;
             // 
-            // rsiPeriodDataGridViewTextBoxColumn
+            // parametr1DataGridViewTextBoxColumn
             // 
-            rsiPeriodDataGridViewTextBoxColumn.DataPropertyName = "RsiPeriod";
-            rsiPeriodDataGridViewTextBoxColumn.HeaderText = "RsiPeriod";
-            rsiPeriodDataGridViewTextBoxColumn.MinimumWidth = 6;
-            rsiPeriodDataGridViewTextBoxColumn.Name = "rsiPeriodDataGridViewTextBoxColumn";
-            rsiPeriodDataGridViewTextBoxColumn.ReadOnly = true;
-            rsiPeriodDataGridViewTextBoxColumn.Width = 125;
+            parametr1DataGridViewTextBoxColumn.DataPropertyName = "Parametr1";
+            parametr1DataGridViewTextBoxColumn.HeaderText = "Parametr1";
+            parametr1DataGridViewTextBoxColumn.MinimumWidth = 6;
+            parametr1DataGridViewTextBoxColumn.Name = "parametr1DataGridViewTextBoxColumn";
+            parametr1DataGridViewTextBoxColumn.ReadOnly = true;
+            parametr1DataGridViewTextBoxColumn.Width = 125;
             // 
-            // rsiTresholdDataGridViewTextBoxColumn
+            // parametr2DataGridViewTextBoxColumn
             // 
-            rsiTresholdDataGridViewTextBoxColumn.DataPropertyName = "RsiTreshold";
-            rsiTresholdDataGridViewTextBoxColumn.HeaderText = "RsiTreshold";
-            rsiTresholdDataGridViewTextBoxColumn.MinimumWidth = 6;
-            rsiTresholdDataGridViewTextBoxColumn.Name = "rsiTresholdDataGridViewTextBoxColumn";
-            rsiTresholdDataGridViewTextBoxColumn.ReadOnly = true;
-            rsiTresholdDataGridViewTextBoxColumn.Width = 125;
+            parametr2DataGridViewTextBoxColumn.DataPropertyName = "Parametr2";
+            parametr2DataGridViewTextBoxColumn.HeaderText = "Parametr2";
+            parametr2DataGridViewTextBoxColumn.MinimumWidth = 6;
+            parametr2DataGridViewTextBoxColumn.Name = "parametr2DataGridViewTextBoxColumn";
+            parametr2DataGridViewTextBoxColumn.ReadOnly = true;
+            parametr2DataGridViewTextBoxColumn.Width = 125;
+            // 
+            // parametr3DataGridViewTextBoxColumn
+            // 
+            parametr3DataGridViewTextBoxColumn.DataPropertyName = "Parametr3";
+            parametr3DataGridViewTextBoxColumn.HeaderText = "Parametr3";
+            parametr3DataGridViewTextBoxColumn.MinimumWidth = 6;
+            parametr3DataGridViewTextBoxColumn.Name = "parametr3DataGridViewTextBoxColumn";
+            parametr3DataGridViewTextBoxColumn.ReadOnly = true;
+            parametr3DataGridViewTextBoxColumn.Width = 125;
             // 
             // percentTakeProfitDataGridViewTextBoxColumn
             // 
@@ -164,32 +200,6 @@
             pairCurrentDataGridViewTextBoxColumn.ReadOnly = true;
             pairCurrentDataGridViewTextBoxColumn.Width = 125;
             // 
-            // settingBindingSource
-            // 
-            settingBindingSource.DataSource = typeof(Data.Setting);
-            // 
-            // buttonTrace
-            // 
-            buttonTrace.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            buttonTrace.Location = new Point(1222, 490);
-            buttonTrace.Name = "buttonTrace";
-            buttonTrace.Size = new Size(155, 29);
-            buttonTrace.TabIndex = 1;
-            buttonTrace.Text = "Трассировка";
-            buttonTrace.UseVisualStyleBackColor = true;
-            buttonTrace.Click += buttonTrace_Click;
-            // 
-            // buttonIniGenerate
-            // 
-            buttonIniGenerate.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            buttonIniGenerate.Location = new Point(1030, 490);
-            buttonIniGenerate.Name = "buttonIniGenerate";
-            buttonIniGenerate.Size = new Size(176, 29);
-            buttonIniGenerate.TabIndex = 2;
-            buttonIniGenerate.Text = "Генерация ini";
-            buttonIniGenerate.UseVisualStyleBackColor = true;
-            buttonIniGenerate.Click += buttonIniGenerate_Click;
-            // 
             // FormSettings
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -211,9 +221,14 @@
         private DataGridView dataGridViewSettings;
         private DataGridViewTextBoxColumn idSettingDataGridViewTextBoxColumn;
         private DataGridViewTextBoxColumn timeDataGridViewTextBoxColumn;
-        private DataGridViewTextBoxColumn settingIdDataGridViewTextBoxColumn;
         private DataGridViewTextBoxColumn rsiPeriodDataGridViewTextBoxColumn;
         private DataGridViewTextBoxColumn rsiTresholdDataGridViewTextBoxColumn;
+        private Button buttonTrace;
+        private Button buttonIniGenerate;
+        private DataGridViewTextBoxColumn settingIdDataGridViewTextBoxColumn;
+        private DataGridViewTextBoxColumn parametr1DataGridViewTextBoxColumn;
+        private DataGridViewTextBoxColumn parametr2DataGridViewTextBoxColumn;
+        private DataGridViewTextBoxColumn parametr3DataGridViewTextBoxColumn;
         private DataGridViewTextBoxColumn percentTakeProfitDataGridViewTextBoxColumn;
         private DataGridViewTextBoxColumn percentStopLossDataGridViewTextBoxColumn;
         private DataGridViewCheckBoxColumn onlyOneSellDataGridViewCheckBoxColumn;
@@ -223,7 +238,5 @@
         private DataGridViewTextBoxColumn weekTradesDataGridViewTextBoxColumn;
         private DataGridViewTextBoxColumn pairCurrentDataGridViewTextBoxColumn;
         private BindingSource settingBindingSource;
-        private Button buttonTrace;
-        private Button buttonIniGenerate;
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Binance.Net.Clients;
 using Binance.Net.Enums;
+using Binance.Net.Objects.Models.Spot;
 using CryptoExchange.Net.CommonObjects;
 using System;
 using System.Collections.Generic;
@@ -47,12 +48,17 @@ namespace SimpleTradeBot
         public TradeBot()
         {
             Client = new BinanceClient();
-            Client.SetApiCredentials(new Binance.Net.Objects.BinanceApiCredentials(
-                "p39EYe4QxRZS2dXgSL73xCspn88TCQNLQd93ZUKE7rkCuyd2jADi1AD4KntKApv3",
-                "tudhsqIz826OAOuaD1dx0ER1cGnrDNzPeKq2pQYIIlVirbbLPipcHrLeZolhTmpN"));
+            
             DateTime dt = DateTime.Now;
             LogFile = "logs/STBLog"+dt.Day+"."+dt.Month+"."+dt.Year+".txt";
             System.IO.Directory.CreateDirectory("logs");
+        }
+
+        public void SetApi(string apikey, string apisecret)
+        {
+            Client.SetApiCredentials(new Binance.Net.Objects.BinanceApiCredentials(
+                apikey,
+                apisecret));
         }
 
         private void WriteToLog(string msg)

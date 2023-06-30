@@ -9,8 +9,9 @@ namespace SimpleTradeBotBacktester.Data
     public class Setting
     {
         public int SettingId { get; set; }
-        public int RsiPeriod { get; set; }
-        public int RsiTreshold { get; set; }
+        public int Parametr1 { get; set; }
+        public int Parametr2 { get; set; }
+        public int Parametr3 { get; set; }
         public double PercentTakeProfit { get; set; }
         public double PercentStopLoss { get; set; }
         public bool OnlyOneSell { get; set; }
